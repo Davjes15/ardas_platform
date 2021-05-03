@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Schedule - ARDAS</title>
+	<link rel="icon" href ="../images/favicon.ico">
+	<link rel="stylesheet" href="../css/popup_schedule.css">
+</head>
+<body>
+
+	<h3 id="tit">Schedule Maintenance Action Date</h3>
+	
+	<!-- Draw calender -->
+	<div id="date-pick-container"></div>
+	
+	<!-- Selected date -->
+  <div class="layout-centre selected-date">
+		<form>
+			<label for="date-picker-input">Selected Date</label>
+			<input id="date-picker-input" class="date-input center-block" type="text" disabled/>
+			<div class="radio-action">
+				<label class="radio">
+					<input type="radio" name="action" value="repairAction" id="repairAction">
+					<span class="label-action">Repair Action</span>
+				</label>
+				<label class="radio">
+					<input type="radio" name="action" value="inspectionAction" id="inspectionAction">
+					<span class="label-action">Inspection Action</span>
+				</label>
+			</div>
+			<div id="selected-people" class="hidden">
+				<label for="selected-resource">People</label>
+				<select id="selected-resource">
+					<option value="select">Select</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+				</select>
+			</div>
+			<button id="schedule-button" class="btn center-block" type="submit">Schedule</button>
+		</form>
+  </div>
+  <script src="../js/popup_schedule.js"></script>
+</body>
+</html>

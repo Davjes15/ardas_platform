@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Data Storage</title>
+
+	<!-- JS LIBRARY LIST -->
+	<script src ="{{url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
+	<script src ="{{url_for('static',filename='js/sysend.js')}}"></script>
+
+	<link rel="icon" href ="{{url_for('static',filename='images/favicon.ico')}}">
+	<link rel="stylesheet" href ="{{url_for('static',filename='css/storage.css')}}">
+</head>
+<body>
+	
+	<div id="data-storage">
+		<span class="txt">*Below data show just click time and which button is clicked, and these might not mean real desicions.</span>
+		<!-- <div id="data-info">
+			<label for="">Date</label><input type="text">
+			<label for="">Name/Num</label><input type="text">
+		</div> -->
+		<div id="data-btns">
+			<button type="submit" id="btn-save-datalist">Save data list</button>
+			<button type="submit" id="btn-clear-datalist">Remove data list</button>
+		</div>
+		<div id="data-list"></div>
+	</div>
+	
+	<script src ="{{url_for('static',filename='js/data_storage.js')}}"></script>
+</body>
+</html>

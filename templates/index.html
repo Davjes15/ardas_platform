@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>ARDAS</title>
+
+	<!-- JS LIBRARY LIST -->
+	<script src ="{{url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script> <!-- LIBRARY for jQuery -->
+	<script src ="{{url_for('static',filename='js/sysend.js')}}"></script> <!-- LIBRARY for Calender to set inspection -->
+	<script src ="{{url_for('static',filename='js/mus.min.js')}}"></script> <!-- LIBRARY for Mouse Tracking -->
+	<script src="https://d3js.org/d3.v4.min.js"></script> <!-- LIBRARY d3.js for Graphs -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script> <!-- LIBRARY d3.js tooltip for Graphs -->
+
+	<!-- CSS LIST -->
+	<link rel="icon" href ="{{url_for('static',filename='images/favicon.ico')}}"> <!-- LIBRARY for Favicon -->
+	<link rel="stylesheet" href ="{{url_for('static',filename='css/font-awesome/css/all.css')}}"> <!-- LIBRARY for icon -->
+	<link rel="stylesheet" href ="https://fonts.googleapis.com/css?family=Open+Sans|Raleway&display=swap"> <!-- Web-Font: Main for Raleway, Sub for Open Sans -->
+	<link rel="stylesheet" href ="{{url_for('static',filename='css/common.css')}}">
+	<link rel="stylesheet" href ="{{url_for('static',filename='css/images_layout.css')}}">
+		
+</head>
+<body>
+
+	<div class="wrap">
+	
+		<!-- S: Top Menu -->
+		<div id="top-m" class="frame">
+			<button type="button" class="btn_m" id="btn_m_lock" onclick="javascript:topmenuOnOff();"><i class="fas fa-lock"></i></button>
+			<span id="lock_password" class="off">
+				<label for="user_password">Password: </label>
+				<input id="user_password" type="password" inputmode="numeric" autocomplete="off" value="">
+				<button type="submit" id="btn_password" class="btn_m">Check</button>
+				<span id="worng_password"></span>
+			</span>
+			<span id="mouse_tracking">
+				<button id="recording" onclick="toggleRecord();">Start recording</button>
+				<button id="play" onclick="play();">Play</button>
+				<button onclick="releaseMus();">Release</button>
+				<span>Status: <span id="status">Stand by</span></span>
+			</span>
+			<div id="btn_m_unlockBox" class="off">
+				<button type="button" class="btn_m" id="btn_m_unlock" onclick="javascript:topmenuOnOff();"><i class="fas fa-unlock"></i></button>
+				<button type="button" class="btn_m" id="btn_m_reason">Actions</button>
+				<button type="button" class="btn_m" id="btn_m_confidenceRate">Confidence Rate</button>
+				<button type="button" class="btn_m" id="btn_m_sensors">Sensors</button>
+				<button type="button" class="btn_m" id="btn_m_history">History</button>
+				<button type="button" class="btn_m" id="btn_m_featureWeights">Feature Weights</button>
+				<button type="button" class="btn_m" id="btn_m_criticality">Criticality</button>
+				<button type="button" class="btn_m" id="btn_m_resources">Resources</button>
+				<button type="button" class="btn_m" id="btn_m_oprhours">Operation Hours</button>
+				<span id="histFeat-status">
+					<span>History & Feature: </span>
+					<span id="histFeat-switchBox">
+						<span class="label-switch">Graph</span>
+						<input type="checkbox" id="histFeat-switch" /><label for="histFeat-switch"></label>
+						<span class="label-switch" id="label-histFeat-table">Table</span>
+					</span>
+				</span>
+				<span id="current-status">
+					<span>Current Cycle: <span id="currentText"></span> <span id="data_length"></span></span>
+					<input type="text" id="changeText">
+					<button type="button" id="btn_m_changeStatus" class="btn_m">Change</button>
+				</span>
+				<span id="model-status">
+					<span>ML Model: </span>
+					<select name="" id="model-list">
+						<option value="rf">Random Forest</option>
+						<option value="lr">Logistic Regression</option>
+						<option value="">OneR</option>
+						<option value="">JRip</option>
+						<option value="">PART</option>
+						<option value="">J48</option>
+						<option value="">NativeBayes</option>
+					</select>
+					<button type="button" id="btn_m_changeModelStatus" class="btn_m">Change</button>
+				</span>
+				<span id="correlation-status">
+					<span>Correlation: </span>
+					<span id="correlation-switchBox">
+						<span class="label-switch">1 axis</span>
+						<input type="checkbox" id="correlation-switch" /><label for="correlation-switch"></label>
+						<span class="label-switch" id="label-correlation-twoAxes">2 axes</span>
+					</span>
+				</span>
+			</div>
+		</div>
+		<!-- E: Top Menu -->
+
+		<!-- S: wrap-left -->
+		<div id="wrap-l" class="frame">
+
+			<!-- S: schematic view -->
+			<div id="main">
+				<h2 class="sec_tit">
+					Hydraulic Process 
+					<span class="tooltip">
+						<i class="fas fa-info-circle"></i>
+						<span class="tooltiptext">
+							<fieldset class="legend">
+								<legend>Legend</legend>
+								<ul>
+									<li>
+										<span class="legend-symbol"><button type="button" class="la-pos la-btnI" id=""><i class="fas fa-circle"></i></button></span> 
+										<span class="legend-label">Sensor</span>
+									</li>
+									<li>
+										<span class="legend-symbol"><button type="button" class="la-pos la-box" id=""></button></span> 
+										<span class="legend-label">Virtual Sensor</span>
+									</li>
+									<li>
+										<span class="legend-symbol"><div class="ele-highlight" id=""></div></span>
+										<span class="legend-label">Component</span>
+									</li>
+								</ul>
+							</fieldset>
+						</span>
+					</span>
+				</h2>
+
+				<!-- S: First schematic view -->
+				<div id="image_map">
+					<div class="ele-highlight ele-acc" id="highlight_acc"></div>
+					<div class="ele-highlight ele-pump" id="highlight_pump"></div>
+					<div class="ele-highlight ele-valve" id="highlight_valve"></div>
+					<span id="se-label" class="la-pos">System Efficiency</span>
+					<button type="button" class="la-pos la-box" id="se">SE Sensor</button>
+					<img src="static/images/Tank5 Gray.png" class="img-pos img-tank" id="tank_a1" alt="">
+					<label for="tank_a1" class="la-pos" id="tank_a1_la">A1</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_a1" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v1" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v1_la">V1</label>
+					<img src="static/images/Tank5 Gray.png" class="img-pos img-tank" id="tank_a2" alt="">
+					<label for="tank_a1" class="la-pos" id="tank_a2_la">A2</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_a2" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v2" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v2_la">V2</label>
+					<img src="static/images/Tank5 Gray.png" class="img-pos img-tank" id="tank_a3" alt="">
+					<label for="tank_a1" class="la-pos" id="tank_a3_la">A3</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_a3" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v3" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v3_la">V3</label>
+					<img src="static/images/Tank5 Gray.png" class="img-pos img-tank" id="tank_a4" alt="">
+					<label for="tank_a1" class="la-pos" id="tank_a4_la">A4</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_a4" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v4" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v4_la">V4</label>
+					<img src="static/images/Elbow Gray BottomLeft.png" class="img-pos img-elbow" id="elbow_1" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h1" alt="">
+					<img src="static/images/Elbow Gray TopRight.png" class="img-pos img-elbow" id="elbow_2" alt="">
+					<img src="static/images/Pipe Gray VertShort2.png" class="img-pos img-pipe" id="pipe_s1" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h2" alt="">
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee1" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h3" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve" id="valve_v5" alt="">
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s2" alt="">
+					<img src="static/images/Tee Gray Bottom.png" class="img-pos img-tee" id="tee2" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v6" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v6_la">V6</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s3" alt="">
+					<img src="static/images/Tee Gray Bottom.png" class="img-pos img-tee" id="tee3" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v7" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v7_la">V7</label>
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee4" alt="">
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee5" alt="">
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee6" alt="">
+					<img src="static/images/Pipe Gray VertShort2.png" class="img-pos img-pipe" id="pipe_s6" alt="">
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee9" alt="">
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s4" alt="">
+					<img src="static/images/Tee Gray Bottom.png" class="img-pos img-tee" id="tee7" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v8" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v8_la">V8</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s5" alt="">
+					<img src="static/images/Tee Gray Bottom.png" class="img-pos img-tee" id="tee8" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v9" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v9_la">V9</label>
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve" id="valve_v10" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v10_la">V10</label>
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h5" alt="">
+					<img src="static/images/Elbow Gray TopLeft.png" class="img-pos img-elbow" id="elbow_3" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve" id="valve_v11" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v11_la">V11</label>
+					<button type="button" class="la-pos la-box" id="VS1">VS1</button>
+					<div class="line-w" id="line1"></div>
+					<!-- <div class="la-pos la-box" id="TS5">TS5</div> -->
+					<!-- <div class="line-w" id="line2"></div> -->
+					<div class="line-h" id="line3"></div>
+					<img src="static/images/Pipe Gray VertShort2.png" class="img-pos img-pipe" id="pipe_s13" alt="">
+					<img src="static/images/Elbow Gray TopLeft.png" class="img-pos img-elbow" id="elbow_11" alt="">
+					<button type="button" class="la-pos la-box" id="EPS1">EPS1</button>
+					<img src="static/images/Pump Gray Front.png" class="img-pos img-motor" id="motor1" alt="">
+					<label class="la-pos" id="moter1_mp1">MP1</label>
+					<div class="line-h" id="line4"></div>
+					<button type="button" class="la-pos la-btnI" id="ps1"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps1_la">PS1</label>
+					<div class="line-h" id="line5"></div>
+					<button type="button" class="la-pos la-btnI" id="ps2"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps2_la">PS2</label>
+					<div class="line-h" id="line6"></div>
+					<button type="button" class="la-pos la-btnI" id="ts1"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ts1_la">TS1</label>
+					<label class="la-pos la-boxW" id="cs">CS</label>
+					<div class="trapezoid" id="trapezoid1"></div>
+					<label class="la-pos la-boxW" id="mcs">MCS</label>
+					<button type="button" class="la-pos la-btnI circle" id="circle1"></button>
+					<label class="la-pos" id="circle1_la">FS1</label>
+					<div class="diamond" id="diamond1"></div>
+					<label class="la-pos" id="diamond1_la">F1</label>
+					<img src="static/images/Pipe Gray VertShort2.png" class="img-pos img-pipe" id="pipe_s7" alt="">
+					<img src="static/images/Elbow Gray TopRight.png" class="img-pos img-elbow" id="elbow_4" alt="">
+					<div class="line-h" id="line7"></div>
+					<button type="button" class="la-pos la-btnI" id="ps3"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps3_la">PS3</label>
+					<div class="line-h" id="line8"></div>
+					<button type="button" class="la-pos la-btnI" id="ts2"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ts2_la">TS2</label>
+					<img src="static/images/Pipe Gray VertShort2.png" class="img-pos img-pipe" id="pipe_s8" alt="">
+					<img src="static/images/Elbow Gray TopRight.png" class="img-pos img-elbow" id="elbow_5" alt="">
+					<label class="la-pos la-unknown" id="unknown1">Tank</label>
+					<label class="la-pos la-unknown" id="unknown2">Tank</label>
+					<label class="la-pos la-unknown" id="unknown3">Tank</label>
+					<label class="la-pos la-unknown" id="unknown4">Tank</label>
+					<label class="la-pos la-unknown" id="unknown5">Tank</label>
+					<label class="la-pos la-unknown" id="unknown6">Tank</label>
+					<label class="la-pos la-unknown" id="unknown7">Tank</label>
+					<span class="component-desc off" id="desc-volumeFlowSensor"><i class="fas fa-arrow-up"></i><br />Volume Flow Sensor</span>
+					<span class="component-desc off" id="desc-checkValve"><i class="fas fa-arrow-up"></i><br />Check Valve</span>
+					<span class="component-desc off" id="desc-restrictorFixed"><i class="fas fa-arrow-up"></i><br />Restrictor<br />(Fixed)</span>
+					<!-- <span class="component-desc off" id="desc-"><i class="fas fa-arrow-up"></i><br /></span> -->
+					<!-- <span class="component-desc off" id="desc-"><i class="fas fa-arrow-up"></i><br /></span> -->
+				</div>
+				<!-- E: First schematic view -->
+
+				<!-- S: Second schematic view -->
+				<div id="image_map2">
+					<div class="ele-highlight ele-cooler" id="highlight_cooler"></div>
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h6" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h7" alt="">
+					<label class="la-pos la-boxW" id="mcs2">MCS</label>
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve" id="valve_v12" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v12_la">V12</label>
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee10" alt="">
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s9" alt="">
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve img-left" id="valve_v13" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v13_la">V13</label>
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h8" alt="">
+					<img src="static/images/Elbow Gray TopLeft.png" class="img-pos img-elbow" id="elbow_6" alt="">
+					<div class="line-h" id="line9"></div>
+					<button type="button" class="la-pos la-btnI" id="ps4"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps4_la">PS4</label>
+					<div class="diamond" id="diamond2"></div>
+					<label class="la-pos" id="diamond2_la">F2</label>
+					<img src="static/images/Valve1 Gray.png" class="img-pos img-valve" id="valve_v14" alt="">
+					<label for="valve_v1" class="la-pos" id="valve_v14_la">V14</label>
+					<img src="static/images/Elbow Gray TopRight.png" class="img-pos img-elbow" id="elbow_7" alt="">
+					<img src="static/images/Tee Gray Top.png" class="img-pos img-tee" id="tee11" alt="">
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s10" alt="">
+					<div class="line-h" id="line10"></div>
+					<button type="button" class="la-pos la-btnI" id="ps5"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps5_la">PS5</label>
+					<div class="line-h" id="line11"></div>
+					<button type="button" class="la-pos la-btnI" id="ts3"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ts3_la">TS3</label>
+					<button type="button" class="la-pos la-box" id="ce">CE</button>
+					<button type="button" class="la-pos la-box" id="cp">CP</button>
+					<div class="line-w" id="line14"></div>
+					<div class="line-w" id="line15"></div>
+					<div class="line-h" id="line16"></div>
+					<div class="diamond" id="diamond3"></div>
+					<label class="la-pos" id="diamond3_la">C1</label>
+					<div class="line-h" id="line12"></div>
+					<button type="button" class="la-pos la-btnI" id="ps6"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ps6_la">PS6</label>
+					<div class="line-h" id="line13"></div>
+					<button type="button" class="la-pos la-btnI" id="ts4"><i class="fas fa-circle"></i></button>
+					<label class="la-pos" id="ts4_la">TS4</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s11" alt="">
+					<img src="static/images/Tee Gray Left.png" class="img-pos img-teeR" id="tee12" alt="">
+					<img src="static/images/Elbow Gray TopLeft.png" class="img-pos img-elbow" id="elbow_8" alt="">
+					<img src="static/images/Elbow Gray BottomLeft.png" class="img-pos img-elbow" id="elbow_9" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h9" alt="">
+					<div class="trapezoid" id="trapezoid2"></div>
+					<label class="la-pos la-boxW" id="cops">COPS</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s12" alt="">
+					<img src="static/images/Elbow Gray TopRight.png" class="img-pos img-elbow" id="elbow_10" alt="">
+					<img src="static/images/Pipe Gray Horz.png" class="img-pos img-pipeH" id="pipe_h10" alt="">
+					<img src="static/images/Tee Gray Left.png" class="img-pos img-teeR" id="tee13" alt="">
+					<button type="button" class="la-pos la-btnI circle" id="circle2"></button>
+					<label class="la-pos" id="circle2_la">FS2</label>
+					<img src="static/images/Pipe Gray VertShort.png" class="img-pos img-pipe" id="pipe_s14" alt="">
+					<img src="static/images/Elbow Gray TopLeft.png" class="img-pos img-elbow" id="elbow_12" alt="">
+					<img src="static/images/Pump Gray Front.png" class="img-pos img-motor" id="motor2" alt="">
+					<label class="la-pos" id="moter2_sp1">SP1</label>
+					<label class="la-pos la-unknown" id="unknown8">Tank</label>
+					<label class="la-pos la-unknown" id="unknown9">Tank</label>
+				</div>
+				<!-- E: Second schematic view -->
+
+			</div>
+			<!-- E: schematic view -->
+
+			<div id="submain">
+				<h2 class="sec_tit">Decision Support
+					<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Decision Support</span></span>
+				</h2>
+				<!-- S: condition - suggestions and reasons -->
+				<table class="tbl" id="tbl_sggst">
+					<thead>
+						<tr>
+							<th class="tbl_tit" id="sggst_btn_history">History</th>
+							<th class="tbl_tit" id="sggst_alert">Alert</th>
+							<th class="tbl_tit" id="sggst_ele">Element</th>
+							<th class="tbl_tit" id="sggst_tag">Tag</th>
+							<th class="tbl_tit" id="sggst_sggst">System Suggestion</th>
+							<th class="tbl_tit col-confiRate" id="sggst_confiRate">Confidence</th>
+							<th class="tbl_tit" id="sggst_btn_feature">Feature</th>
+							<th class="tbl_tit recomm_act" id="sggst_reason">Recommended Action</th>
+							<th class="tbl_tit" id="sggst_btn_accpet">User Decision</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="con_tbl_row">
+							<td class="con_col">
+								<button type="button" id="btn_history_cooler" class="btn_grph"><i class="fas fa-wrench"></i></button>
+							</td>
+							<td class="con_col">
+								<div class="lightBox" id="lightBox_cooler"><i class="fas fa-circle"></i></div>
+							</td>
+							<td class="con_col">
+								<div id="ele-tit-cooler" class="tit_ele">Cooler</div>
+							</td>
+							<td class="con_col">
+								<div id="ele_tag_cooler" class="tit_ele">C1</div>
+							</td>
+							<td class="con_col">
+								<p id="suggestion_cooler"></p>
+							</td>
+							<td class="con_col col-confiRate">
+								<p id="confiRate-cooler"></p>
+							</td>
+							<td class="con_col">
+								<button id="btn_feat_cooler" class="btn_features"><i class="far fa-chart-bar"></i></button>
+							</td>
+							<td class="con_col recomm_act">
+								<p id="recomm_cooler"></p>
+							</td>
+							<td class="con_col">
+								<span id="date_record_cooler" class="date_record off"></span>
+								<div id="btns_cooler" class="acceptBox off">
+									<button type="button" class="btn_accpet">Accept</button>
+									<button type="button" class="btn_reject">Reject</button>
+								</div>
+							</td>
+						</tr>
+						<tr class="con_tbl_row row_wh">
+							<td class="con_col">
+								<button type="button" id="btn_history_valve" class="btn_grph"><i class="fas fa-wrench"></i></a>
+							</td>
+							<td class="con_col">
+								<div class="lightBox" id="lightBox_valve"><i class="fas fa-circle"></i></div>
+							</td>
+							<td class="con_col ele">
+								<div id="ele-tit-valve" class="tit_ele">Valve</div>
+							</td>
+							<td class="con_col">
+								<div id="ele_tag_valve" class="tit_ele">V10</div>
+							</td>
+							<td class="con_col">
+								<p id="suggestion_valve"></p>
+							</td>
+							<td class="con_col col-confiRate">
+								<p id="confiRate-valve">80%</p>
+							</td>
+							<td class="con_col">
+								<button id="btn_feat_valve" class="btn_features"><i class="far fa-chart-bar"></i></button>
+							</td>
+							<td class="con_col recomm_act">
+								<p id="recomm_valve"></p>
+							</td>
+							<td class="con_col">
+								<span id="date_record_valve" class="date_record off"></span>
+								<div id="btns_valve" class="acceptBox off">
+									<button type="button" class="btn_accpet">Accept</button>
+									<button type="button" class="btn_reject">Reject</button>
+								</div>
+							</td>
+						</tr>
+						<tr class="con_tbl_row">
+							<td class="con_col">
+								<button type="button" id="btn_history_pump" class="btn_grph"><i class="fas fa-wrench"></i></a>
+							</td>
+							<td class="con_col">
+								<div class="lightBox" id="lightBox_pump"><i class="fas fa-circle"></i></div>
+							</td>
+							<td class="con_col">
+								<div id="ele-tit-pump" class="tit_ele">Pump</div>
+							</td>
+							<td class="con_col">
+								<div id="ele_tag_pump" class="tit_ele">MP1</div>
+							</td>
+							<td class="con_cotit_elel">
+								<p id="suggestion_pump"></p>
+							</td>
+							<td class="con_col col-confiRate">
+								<p id="confiRate-pump">93%</p>
+							</td>
+							<td class="con_col">
+								<button id="btn_feat_pump" class="btn_features"><i class="far fa-chart-bar"></i></button>
+							</td>
+							<td class="con_col recomm_act">
+								<p id="recomm_pump"></p>
+							</td>
+							<td class="con_col">
+								<span id="date_record_pump" class="date_record off"></span>
+								<div id="btns_pump" class="acceptBox off">
+									<button type="button" class="btn_accpet">Accept</button>
+									<button type="button" class="btn_reject">Reject</button>
+								</div>
+							</td>
+						</tr>
+						<tr class="con_tbl_row row_wh">
+							<td class="con_col">
+								<button type="button" id="btn_history_acc" class="btn_grph"><i class="fas fa-wrench"></i></a>
+							</td>
+							<td class="con_col">
+								<div class="lightBox" id="lightBox_acc"><i class="fas fa-circle"></i></div>
+							</td>
+							<td class="con_col">
+								<div id="ele-tit-acc" class="tit_ele">Accumulator</div>
+							</td>
+							<td class="con_col">
+								<div id="ele_tag_acc" class="tit_ele">A1-A4</div>
+							</td>
+							<td class="con_col">
+								<p id="suggestion_acc"></p>
+							</td>
+							<td class="con_col col-confiRate">
+								<p id="confiRate-acc">98%</p>
+							</td>
+							<td class="con_col">
+								<button id="btn_feat_acc" class="btn_features"><i class="far fa-chart-bar"></i></button>
+							</td>
+							<td class="con_col recomm_act">
+								<p id="recomm_acc"></p>
+							</td>
+							<td class="con_col">
+								<span id="date_record_acc" class="date_record off"></span>
+								<div id="btns_acc" class="acceptBox off">
+									<button type="button" class="btn_accpet">Accept</button>
+									<button type="button" class="btn_reject">Reject</button>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- E: condition - suggestions and reasons -->
+			</div>
+
+		</div>
+		<!-- E: wrap-left -->
+
+		<!-- S: wrap-right -->
+		<div id="wrap-r" class="frame">
+			<!-- S: right graphs -->
+			<div id="r_graphs">
+				<div>
+					<div id="graph_sensor_1">
+						<h2 class="sec_tit">Sensor <span id="tit_sensorL"></span> Trend
+							<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Sensor Trend</span></span>
+						</h2>
+						<div class="draw">
+							<div id="graph-sensorLeft-loader"></div>
+							<svg class="chart off" id="graph-sensorLeft"></svg>
+						</div>
+						<div class="empty_data">
+							<p class="graph_non">Select one element</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+						<div class="lock_data off">
+							<p class="graph_non"><i class="fas fa-lock"></i><br>Currently not available</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+					</div>
+					<div id="graph_sensor_2">
+						<h2 class="sec_tit">Sensor Correlation  <span id="tit_sensorR"></span><span> and <!-- <span id="tit_sensor_co"></span> -->
+							<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Correlation Sensor</span></span>
+						</h2>
+						<div class="draw">
+							<div class="sec_slc">
+								<!-- <label for="sensor_co_list" id="sensor_co_tit">Correlation Sensor:</label> -->
+								<select name="" id="sensor_co_list">
+									<option value="none" selected="selected">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+								</select>
+								<button type="button" id="btn_sensor_co">Plot</button>
+							</div>
+							<div id="graph-sensorRight-loader"></div>
+							<svg class="chart off" id="graph-sensorRight"></svg>
+						</div>
+						<div class="empty_data">
+							<p class="graph_non">Select one element</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+						<div class="lock_data off">
+							<p class="graph_non"><i class="fas fa-lock"></i><br>Currently not available</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+					</div>
+				</div>
+				<div>
+					<div id="graph_history">
+						<h2 class="sec_tit"><i class="fas fa-wrench"></i> History of Events 
+							<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride History of Events</span></span>
+							<span id="graph_history_tit"></span>
+						</h2>
+						<div class="draw">
+							<svg class="chart off" id="graph-history-cooler"></svg>
+							<svg class="chart off" id="graph-history-valve"></svg>
+							<svg class="chart off" id="graph-history-pump"></svg>
+							<svg class="chart off" id="graph-history-acc"></svg>
+							<div class="history-chart off" id="table-history-cooler">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>Jun-15-2019</th>
+											<th>Jul-15-2019</th>
+											<th>Aug-15-2019</th>
+											<th>Sep-15-2019</th>
+											<th>Oct-15-2019</th>
+											<th>Nov-15-2019</th>
+											<th>Dec-15-2019</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>100</td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>80</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>40</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>20</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>3</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="history-chart off" id="table-history-valve">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>Jun-15-2019</th>
+											<th>Jul-15-2019</th>
+											<th>Aug-15-2019</th>
+											<th>Sep-15-2019</th>
+											<th>Oct-15-2019</th>
+											<th>Nov-15-2019</th>
+											<th>Dec-15-2019</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>100</td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>90</td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>80</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>73</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>70</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="history-chart off" id="table-history-pump">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>Jun-15-2019</th>
+											<th>Jul-15-2019</th>
+											<th>Aug-15-2019</th>
+											<th>Sep-15-2019</th>
+											<th>Oct-15-2019</th>
+											<th>Nov-15-2019</th>
+											<th>Dec-15-2019</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>0</td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>0.5</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>1.0</td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>1.5</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>2.0</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="history-chart off" id="table-history-acc">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>Jun-15-2019</th>
+											<th>Jul-15-2019</th>
+											<th>Aug-15-2019</th>
+											<th>Sep-15-2019</th>
+											<th>Oct-15-2019</th>
+											<th>Nov-15-2019</th>
+											<th>Dec-15-2019</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>130</td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>115</td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>110</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>100</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>90</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="empty_data">
+							<p class="graph_non">Select one element</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+						<div class="lock_data off">
+							<p class="graph_non"><i class="fas fa-lock"></i><br>Currently not available</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+					</div>
+					<div id="graph_bar">
+						<h2 class="sec_tit"><i class="far fa-chart-bar"></i> Feature Weights 
+							<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Feature Weights</span></span>
+							<span id="graph_feature_tit"></span>
+						</h2>
+						<div class="draw">
+							<svg class="chart off" id="graph-bar"></svg>
+							<div class="feature-chart off" id="table-feature-cooler">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>CE_M</th>
+											<th>CP_M</th>
+											<th>PS5_M</th>
+											<th>TS4_M</th>
+											<th>PS6_M</th>
+											<th>TS1_M</th>
+											<th>TS2_M</th>
+											<th>PS3_K</th>
+											<th>PS3_S</th>
+											<th>FS2_M</th>
+											<th>TS2_V</th>
+											<th>TS3_M</th>
+											<th>PS1_V</th>
+											<th>VS1_M</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>0.12</td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.10</td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.08</td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.06</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.04</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.02</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>0.00</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="feature-chart off" id="table-feature-valve">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>PS2_K</th>
+											<th>PS2_S</th>
+											<th>SE_K</th>
+											<th>SE_S</th>
+											<th>PS2_V</th>
+											<th>PS1_K</th>
+											<th>FS1_S</th>
+											<th>EPS1_K</th>
+											<th>PS2_M</th>
+											<th>SE_M</th>
+											<th>PS1_V</th>
+											<th>FS1_M</th>
+											<th>SE_V</th>
+											<th>PS1_S</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>0.20</td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.15</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.10</td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.05</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.03</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.02</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.01</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="feature-chart off" id="table-feature-pump">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>FS1_M</th>
+											<th>SE_M</th>
+											<th>SE_V</th>
+											<th>FS1_V</th>
+											<th>EPS1_M</th>
+											<th>PS3_M</th>
+											<th>FS1_S</th>
+											<th>PS1_M</th>
+											<th>PS2_S</th>
+											<th>PS2_K</th>
+											<th>PS3_V</th>
+											<th>TS2_M</th>
+											<th>VS1_K</th>
+											<th>VS1_S</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>0.18</td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.14</td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.10</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.06</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.04</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.02</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.01</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="feature-chart off" id="table-feature-acc">
+								<table>
+									<thead>
+										<tr>
+											<th></th>
+											<th>FS1_S</th>
+											<th>PS3_S</th>
+											<th>FS2_M</th>
+											<th>TS2_M</th>
+											<th>TS4_M</th>
+											<th>TS1_M</th>
+											<th>TS3_M</th>
+											<th>PS6_M</th>
+											<th>FS1_K</th>
+											<th>PS5_M</th>
+											<th>PS3_V</th>
+											<th>EPS1_M</th>
+											<th>PS3_K</th>
+											<th>SE_K</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>0.07</td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.06</td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.05</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.04</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.03</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td><i class="fas fa-check"></i></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td>0.02</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td><i class="fas fa-check"></i></td>
+										</tr>
+										<tr>
+											<td>0.01</td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="empty_data">
+							<p class="graph_non">Select one element</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+						<div class="lock_data off">
+							<p class="graph_non"><i class="fas fa-lock"></i><br>Currently not available</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_img">
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- E: right graphs -->
+			<!-- S: right tables -->
+			<div id="r_tables">
+				<div id="r_tablesInfo"> 					
+					<h2 class="sec_tit">Contextal Information
+						<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Contextal Information</span></span>
+					</h2>
+
+					<!-- S: criticality -->
+					<div id="r_crtclty">
+						<table id="tbl_crtclty" class="tbl tbl_r_tables">
+							<thead>
+								<tr>
+									<th class="tbl_tit" id="w_crtclty_lv">Element</th>
+									<th class="tbl_tit" id="w_crtclty_lv_h">High <br>Criticality</th>
+									<th class="tbl_tit" id="w_crtclty_lv_m">Medium <br>Criticality</th>
+									<th class="tbl_tit" id="w_crtclty_lv_l">Low <br>Criticality</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="con_tbl_row">
+									<td class="con_col"><div class="tit_ele">Cooler</div></td>
+									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col"><div class="tit_ele">Valve</div></td>
+									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+								</tr>
+								<tr class="con_tbl_row">
+									<td class="con_col"><div class="tit_ele">Pump</div></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col"><div class="tit_ele">Accumulator</div></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
+									<td class="con_col"><p class="criticality_lv"></p></td>
+								</tr>						
+							</tbody>
+						</table>
+						<div class="lock_data off">
+							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br>Criticality is currently not available</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_crtclty">
+						</div>
+					</div>
+					<!-- E: criticality -->
+
+					<!-- S: Resources -->
+					<div id="r_resources">
+						<table id="tbl_resources" class="tbl tbl_r_tables">
+							<thead>
+								<tr>
+									<th class="tbl_tit" id="resource_month">Engineers</th>
+									<th class="tbl_tit" id="resource_w1">W1</th>
+									<th class="tbl_tit" id="resource_w2">W2</th>
+									<th class="tbl_tit" id="resource_w3">W3</th>
+									<th class="tbl_tit" id="resource_w4">W4</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="con_tbl_row">
+									<td class="con_col">
+										<div class="tit_ele" id="">Jan</div>
+									</td>
+									<td class="con_col">
+										<p class="w1">5</p>
+									</td>
+									<td class="con_col">
+										<p class="w2">1</p>
+									</td>
+									<td class="con_col">
+										<p class="w3">10</p>
+									</td>
+									<td class="con_col">
+										<p class="w4">5</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col">
+										<div class="tit_ele" id="">Feb</span>
+									</td>
+									<td class="con_col">
+										<p class="w1">5</p>
+									</td>
+									<td class="con_col">
+										<p class="w2">1</p>
+									</td>
+									<td class="con_col">
+										<p class="w3">10</p>
+									</td>
+									<td class="con_col">
+										<p class="w4">5</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row">
+									<td class="con_col">
+										<div class="tit_ele" id="">Mar</span>
+									</td>
+									<td class="con_col">
+										<p class="w1">5</p>
+									</td>
+									<td class="con_col">
+										<p class="w2">1</p>
+									</td>
+									<td class="con_col">
+										<p class="w3">10</p>
+									</td>
+									<td class="con_col">
+										<p class="w4">5</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col">
+										<div class="tit_ele" id="">Apr</span>
+									</td>
+									<td class="con_col">
+										<p class="w1">5</p>
+									</td>
+									<td class="con_col">
+										<p class="w2">1</p>
+									</td>
+									<td class="con_col">
+										<p class="w3">10</p>
+									</td>
+									<td class="con_col">
+										<p class="w4">5</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="lock_data off">
+							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br> is currently not availabe</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_resources">
+						</div>
+					</div>
+					<!-- E: Resources -->
+					
+					<!-- S: Operation Hours -->
+					<div id="r_oprHrs">
+						<table id="tbl_oprHrs" class="tbl tbl_r_tables">
+							<thead>
+								<tr>
+									<th class="tbl_tit" id="w_oprHrs">Element</th>
+									<th class="tbl_tit" id="w_oprHrs_O">Operation Hours</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="con_tbl_row">
+									<td class="con_col">
+										<div class="tit_ele">Cooler</div>
+									</td>
+									<td class="con_col">
+										<p id="criticality_cool">1.5 years</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col">
+										<div class="tit_ele">Valve</div>
+									</td>
+									<td class="con_col">
+										<p id="criticality_valve">3 years</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row">
+									<td class="con_col">
+										<div class="tit_ele">Pump</div>
+									</td>
+									<td class="con_col">
+										<p id="criticality_pump">1 year</p>
+									</td>
+								</tr>
+								<tr class="con_tbl_row row_wh">
+									<td class="con_col">
+										<div class="tit_ele">Accumulator</div>
+									</td>
+									<td class="con_col">
+										<p id="criticality_acc">3 years</p>
+									</td>
+								</tr>						
+							</tbody>
+						</table>
+						<div class="lock_data off">
+							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br>Operation hours is currently not availabe</p>
+							<img src="../static/images/emptyGraph.png" alt="" class="empty_oprHrs">
+						</div>
+					</div>
+					<!-- E: Operation Hours -->
+
+				</div>
+			</div>
+			<!-- E: right tables -->
+		</div>
+		<!-- E: wrap-right -->
+
+	</div>
+
+	<!-- OWN JS -->
+	<script src ="{{url_for('static',filename='js/hs.js')}}"></script> <!-- for common function -->
+	<script src ="{{url_for('static',filename='js/d3_graphs.js')}}"></script> <!-- for graphs -->
+	<script src ="{{url_for('static',filename='js/data_storage.js')}}"></script> <!-- for record click time in another page -->
+	<script src ="{{url_for('static',filename='js/mus.js')}}"></script> <!-- for record click time in another page -->
+
+	<!-- S: Mouse Tracking -->
+	<script>
+		var mus = new Mus();
+		mus.setPlaybackSpeed(mus.speed.NORMAL);
+
+		var setTimePoint = function() {
+			releaseMus();
+			mus.setTimePoint(!mus.isTimePoint());
+			if (mus.isTimePoint()) {
+				document.getElementById("timePoint").innerHTML = "Disable time point";
+			} else {
+				document.getElementById("timePoint").innerHTML = "Enable time point";
+			}
+		};
+		var setConsoleData = function() {
+			var textarea = document.getElementById("console");
+			// textarea.innerHTML = JSON.stringify(mus.getData());
+			// textarea.scrollTop = textarea.scrollHeight;
+		};
+		var releaseMus = function() {
+			mus.release();
+			// setConsoleData();
+		};
+		var toggleRecord = function() {
+			if (mus.isPlaying()) return;
+			if (!mus.isRecording()) {
+				document.getElementById("status").innerHTML = "Recording";
+				document.getElementById("recording").innerHTML = "Stop recording";
+				mus.record(setConsoleData);
+			} else {
+				document.getElementById("status").innerHTML = "Stand by";
+				document.getElementById("recording").innerHTML = "Start recording";
+				mus.stop();
+				setConsoleData();
+			}
+		};
+		var play = function() {
+			if (mus.isRecording()) return;
+			if (mus.isPlaying()) {
+				document.getElementById("play").innerHTML = "Play";
+				document.getElementById("status").innerHTML = "Stand by";
+				mus.pause();
+			} else {
+				document.getElementById("play").innerHTML = "Pause";
+				document.getElementById("status").innerHTML = "Playing";
+				mus.play(function() {
+					document.getElementById("play").innerHTML = "Play";
+					document.getElementById("status").innerHTML = "Stand by";
+				});
+			}
+		};
+		setConsoleData();
+	</script>
+	<!-- E: Mouse Tracking -->
+
+</body>
+</html>

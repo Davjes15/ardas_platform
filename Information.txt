@@ -1,0 +1,46 @@
+******* ARDAS V1.0 *********
+Developed by David Quispe 2019
+Cognitive Engineering Lab - University of Toronto 2019
+
+Structure:
+- File ------- Description
+
+1. ml_model : 
+	* contains machine learning models trained using the original hydraulic data set
+	* profile.txt file contains the condition of 4 components for the data set. These values are used as the target variable
+	for a supervised machine learning approach.
+	* feature_hs is the file that contais the extracted features from the original hydraulic data set (68 features
+	that represent the statistical moments)
+
+2. sensor_data:
+	* contains the original hydraulic data set. 17 txt files.
+	* description contains information about each of the txt files
+	* documenatation gives a brief idea about the data set and information about authors of the data set
+
+3. static:
+	* css contains css files to format the htm file 
+	* hs_database contains the new data that will simulate failures in the hydraulic process. It can contain 17 csv files.
+	Each file can contain as many rows (cycles) as the researcher wants to. The rows in this csv files will be accessed using the top menu on the ARDAS user interface
+		-Inside hs_database there is a file named new_feature_hs that contains the extracted features of the new data
+	* images contains the images used to generate the diagram (PID) on the interface
+	* js contains javascripts files to control the HTML interface
+	* popup contains contains the HTML files to generate the calendars to schedule a maintenance action
+
+4. templates:
+	* contains the main HTML file (index.html) that will render the user interface
+	* it also contains the storage.html file that records the time to accept or reject a predition
+
+5. feature_extraction:
+	* A py file that takes the data and extract the statistical moments of each cycle
+
+6. flask_ardas:
+	* A py file that run the flask server. It extracts features from the new data and uses the trained models
+	to predict the condition of 4 components and send this data to the user interface.
+
+7. hs_randomforest
+	* A py file that trained a Random Forest algorithm to generate 4 ML models
+
+8. ml_hs
+	* A py file that contains the whole process: feature extractiona and training of a RF algrithm
+
+	

@@ -1,0 +1,293 @@
+/*#image_map { min-width: 1000px; }*/
+#image_map, #image_map2 {
+	position: relative;
+}
+#image_map { top: 20px; }
+#image_map2 { top: 262px; }
+.img-pos, .la-pos, 
+div.line-w, div.line-h, 
+.trapezoid, .circle, .diamond,
+.component-desc,
+.ele-highlight {
+	position: absolute;
+}
+img {
+	height: auto;
+}
+img.img-left { transform: rotate(270deg); }
+.la-pos {
+	font-size: 12px;
+}
+.la-box {
+	background: #ccc;
+	font-weight: bold;
+	padding: 3px 6px;
+	border: 0;
+}
+button.la-box {
+	background: #a9cafc;
+}
+.la-btnI i {
+	color: #a9cafc;
+}
+.la-btnI{
+	background: transparent;
+	padding: 0;
+	border: 0;
+	font-size: 13px;
+}
+label.la-boxW {
+	background: #f4f4f4;
+	font-weight: bold;
+	padding: 3px 6px;
+	border: solid 1px #aaa;
+}
+label.la-unknown {
+	/*background: #unknown;*/
+	font-weight: bold;
+	padding: 3px 6px;
+	border-right: solid 1px #aaa;
+	border-left: solid 1px #aaa;
+}
+div.line-w, div.line-h { background: #333; }
+.line-w { height: 1px; }
+.line-h { width: 1px; }
+.trapezoid {
+	border-bottom: 13px solid #edc79e;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	height: 0;
+	width: 20px;
+}
+.circle {
+	width: 14px;
+	height: 14px;
+	background: #a9cafc;
+	border-radius: 50%;
+	/*border: solid 1px #333;*/
+}
+.diamond {
+	width: 0;
+	height: 0;
+	border: 16px solid transparent;
+	border-bottom-color: #edc79e;
+	position: relative;
+	top: -16px;
+}
+.diamond:after {
+	content: '';
+	position: absolute;
+	left: -16px;
+	top: 16px;
+	width: 0;
+	height: 0;
+	border: 16px solid transparent;
+	border-top-color: #edc79e;
+}
+
+/* DESCRIPTION */
+.component-desc {
+	font-size: 10px;
+	color: #ff1717;
+}
+.component-desc#desc-volumeFlowSensor { top: 128px; right: 70px; }
+.component-desc#desc-checkValve { top: 165px; left: 266px; text-align: center; }
+.component-desc#desc-restrictorFixed { top: 166px; right: 165px; text-align: center; }
+
+
+/* IMAGE SIZE */
+img.img-motor { width: 40px; }
+img.img-tank { width: 35px; }
+img.img-pipe { width: 8px; }
+img.img-valve { width: 20px; }
+img.img-elbow { width: 15px; }
+img.img-pipeH { height: 7px; /*width: 200px;*/ }
+img.img-tee { width: 25px; }
+img.img-teeR { width: 18px; }
+img.img-sensor { width: 12px; }
+
+
+
+/* POSITION VALUE for First Map */
+#tank_a1 { left: 118px; top: 7px; }
+#tank_a1_la { left: 105px; top: 23px; }
+#pipe_a1 { left: 131px; top: 48px; }
+#valve_v1 { left: 119px; top: 68px; }
+#valve_v1_la { left: 103px; top: 71px; }
+#tank_a2 { left: 176px; top: 7px; }
+#tank_a2_la { left: 162px; top: 23px; }
+#pipe_a2 { left: 189px; top: 48px; }
+#valve_v2 { left: 177px; top: 68px; }
+#valve_v2_la { left: 159px; top: 71px; }
+#tank_a3 { left: 234px; top: 7px; }
+#tank_a3_la { left: 220px; top: 23px; }
+#pipe_a3 { left: 248px; top: 48px; }
+#valve_v3 { left: 236px; top: 68px; }
+#valve_v3_la { left: 219px; top: 71px; }
+#tank_a4 { left: 290px; top: 7px; }
+#tank_a4_la { left: 276px; top: 23px; }
+#pipe_a4 { left: 303px; top: 48px; }
+#valve_v4 { left: 291px; top: 68px; }
+#valve_v4_la { left: 275px; top: 71px; }
+
+#pipe_h1 { left: 146px; top: 114px; width: 180px; }
+#pipe_h2 { left: 40px; top: 153px; width: 320px; }
+#pipe_h3 { left: 365px; top: 153px; width: 320px; }
+#pipe_h5 { left: 580px; top: 114px; width: 218px; }
+#pipe_s1 { left: 333px; top: 128px; }
+#pipe_s2 { left: 190px; top: 168px; height: 55px; }
+#pipe_s3 { left: 249px; top: 168px; height: 55px; }
+#pipe_s4 { left: 364px; top: 168px; height: 55px; }
+#pipe_s5 { left: 415px; top: 168px; height: 55px; }
+#pipe_s6 { left: 565px; top: 128px; }
+#pipe_s7 { left: 692px; top: 168px; height: 55px; }
+#pipe_s8 { left: 805px; top: 128px; height: 95px; }
+#pipe_s13 { left: 28px; top: 167px; height: 56px; width: 7px; }
+#valve_v5 { left: 285px; top: 140px; }
+#valve_v6 { left: 178px; top: 180px; }
+#valve_v6_la { left: 160px; top: 184px; }
+#valve_v7 { left: 237px; top: 180px; }
+#valve_v7_la { left: 219px; top: 184px; }
+#valve_v8 { left: 352px; top: 180px; }
+#valve_v8_la { left: 334px; top: 184px; }
+#valve_v9 { left: 403px; top: 180px; }
+#valve_v9_la { left: 386px; top: 184px; }
+#valve_v10 { left: 460px; top: 140px; }
+#valve_v10_la { left: 460px; top: 124px; }
+#valve_v11 { left: 593px; top: 101px; }
+#valve_v11_la { left: 594px; top: 86px; }
+#elbow_1 { left: 131px; top: 106px; }
+#elbow_2 { left: 326px; top: 113px; }
+#elbow_3 { left: 565px; top: 113px; }
+#elbow_4 { left: 685px; top: 152px; }
+#elbow_5 { left: 798px; top: 113px; }
+#elbow_11 { left: 27px; top: 152px; }
+#tee1 { left: 325px; top: 143px; }
+#tee2 { left: 181px; top: 151px; }
+#tee3 { left: 240px; top: 151px; }
+#tee4 { left: 181px; top: 104px; }
+#tee5 { left: 240px; top: 104px; }
+#tee6 { left: 295px; top: 104px; }
+#tee7 { left: 355px; top: 151px; }
+#tee8 { left: 406px; top: 151px; }
+#tee9 { left: 557px; top: 143px; }
+#ps1 { left: 430px; top: 132px; }
+#ps1_la { left: 427px; top: 118px; }
+#ps2 { left: 505px; top: 132px; }
+#ps2_la { left: 502px; top: 118px; }
+#ts1 { left: 537px; top: 132px; }
+#ts1_la { left: 534px; top: 118px; }
+#ps3 { left: 698px; top: 94px; }
+#ps3_la { left: 695px; top: 80px; }
+#ts2 { left: 729px; top: 94px; }
+#ts2_la { left: 725px; top: 80px; }
+
+#motor1 { left: 70px; top: 150px; }
+#moter1_mp1 { left: 103px; top: 164px; }
+#VS1 { left: 34px; top: 85px; }
+#TS5 { left: 34px; top: 115px; }
+#EPS1 { left: 64px; top: 203px; }
+#cs { left: 593px; top: 146px; }
+#mcs { left: 621px; top: 106px; }
+#se { right: 38px; top: 14px; width: 72px; }
+#se-label { right: 28px; top: -4px; }
+#trapezoid1 { left: 636px; top: 150px; }
+#circle1 { left: 673px; top: 110px; }
+#circle1_la { left: 670px; top: 96px; }
+#diamond1 { left: 754px; top: 85px; }
+#diamond1_la { left: 764px; top: 85px; }
+div#line1 { width: 17px; left: 66px; top: 94px; }
+/*div#line2 { width: 17px; left: 66px; top: 124px; }*/
+div#line3 { height: 110px; left: 83px; top: 94px; }
+div#line4 { height: 13px; left: 435px; top: 141px; }
+div#line5 { height: 13px; left: 510px; top: 141px; }
+div#line6 { height: 13px; left: 543px; top: 141px; }
+div#line7 { height: 13px; left: 704px; top: 101px; }
+div#line8 { height: 13px; left: 735px; top: 101px; }
+#unknown1 { left: 11px; top: 230px; }
+#unknown2 { left: 173px; top: 230px; }
+#unknown3 { left: 232px; top: 230px; }
+#unknown4 { left: 347px; top: 230px; }
+#unknown5 { left: 398px; top: 230px; }
+#unknown6 { left: 676px; top: 230px; }
+#unknown7 { left: 790px; top: 230px; }
+
+
+
+/* To Highlight Each Element */
+.ele-highlight { border: solid 1px #bababa; background: #fffde1; }
+.highlight_colour { background: #fff895; }
+.ele-highlight.ele-acc { width: 235px; height: 55px; left: 95px; top: -2px; }
+.ele-highlight.ele-pump { width: 66px; height: 36px; left: 64px; top: 146px; }
+.ele-highlight.ele-valve { width: 33px; height: 44px; left: 452px; top: 120px; }
+.ele-highlight.ele-cooler { width: 39px; height: 53px; left: 445px; top: 102px; }
+
+
+
+/* POSITION VALUE for Second Map */
+#pipe_h6 { left: 40px; top: 133px; width: 320px; }
+#pipe_h7 { left: 370px; top: 133px; }
+#pipe_h8 { left: 263px; top: 73px; width: 94px; }
+#pipe_h9 { left: 580px; top: 73px; width: 100px; }
+#pipe_h10 { left: 580px; top: 159px; width: 100px; }
+#mcs2 { left: 125px; top: 125px; }
+#cops { left: 628px; top: 65px; }
+#valve_v12 { left: 180px; top: 120px; }
+#valve_v12_la { left: 180px; top: 105px; }
+#valve_v13 { left: 237px; top: 96px; }
+#valve_v13_la { left: 215px; top: 100px; }
+#valve_v14 { left: 300px; top: 120px; }
+#valve_v14_la { left: 301px; top: 105px; }
+#tee10 { left: 241px; top: 124px; }
+#tee11 { left: 356px; top: 124px; }
+#tee12 { left: 556px; top: 123px; }
+#tee13 { left: 678px; top: 150px; }
+#pipe_s9 { left: 249px; top: 87px; height: 37px; }
+#pipe_s10 { left: 364px; top: 87px; height: 37px; }
+#pipe_s11 { left: 565px; top: 87px; height: 64px; }
+#pipe_s12 { left: 687px; top: 87px; height: 98px; }
+#pipe_s14 { left: 28px; top: 148px; height: 39px; }
+#elbow_6 { left: 248px; top: 72px; }
+#elbow_7 { left: 357px; top: 72px; }
+#elbow_8 { left: 565px; top: 72px; }
+#elbow_9 { left: 565px; top: 151px; }
+#elbow_10 { left: 680px; top: 72px; }
+#elbow_12 { left: 28px; top: 132px; }
+
+#ps4 { left: 279px; top: 51px; }
+#ps4_la { left: 276px; top: 37px; }
+#ps5 { left: 391px; top: 110px; }
+#ps5_la { left: 386px; top: 94px; }
+#ts3 { left: 417px; top: 110px; }
+#ts3_la { left: 414px; top: 94px; }
+#ps6 { left: 501px; top: 110px; }
+#ps6_la { left: 496px; top: 94px; }
+#ts4 { left: 529px; top: 110px; }
+#ts4_la { left: 526px; top: 94px; }
+#ce { left: 476px; top: 24px; }
+#cp { left: 476px; top: 54px; }
+div#line9 { height: 13px; left: 285px; top: 60px; }
+div#line10 { height: 13px; left: 396px; top: 120px; }
+div#line11 { height: 13px; left: 423px; top: 120px; }
+div#line12 { height: 13px; left: 507px; top: 120px; }
+div#line13 { height: 13px; left: 534px; top: 120px; }
+div#line14 { width: 11px; left: 465px; top: 34px; }
+div#line15 { width: 11px; left: 465px; top: 63px; }
+div#line16 { height: 68px; left: 465px; top: 34px; }
+
+#diamond2 { left: 308px; top: 44px; }
+#diamond2_la { left: 318px; top: 45px; }
+#diamond3 { left: 449px; top: 72px; }
+#diamond3_la { left: 459px; top: 105px; }
+#trapezoid2 { left: 586px; top: 70px; }
+#circle2 { left: 622px; top: 155px; }
+#circle2_la { left: 619px; top: 142px; }
+
+#motor2 { left: 70px; top: 130px; }
+#moter2_sp1 { left: 75px; top: 115px; }
+#unknown8 { left: 11px; top: 194px; }
+#unknown9 { left: 670px; top: 194px; }
+
+
+
+

@@ -1,0 +1,241 @@
+body {
+  background: #e3e3e3;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+#date-pick-container * {
+  box-sizing: border-box;
+}
+#date-pick-container .date-pick {
+  z-index: 9999;
+  height: 300px;
+  width: 320px;
+  position: absolute;
+  /*top: 53px;*/
+  right: 0;
+  left: 0;
+  margin: auto;
+  background: #fafafa;
+  color: #273238;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#date-pick-container .date-pick .date-pick-body {
+  font-size: 0;
+  height: 100%;
+  margin: 0 14px;
+}
+#date-pick-container .date-pick .date-pick-body .prev, #date-pick-container .date-pick .date-pick-body .next {
+  font-size: 22px;
+  line-height: 17px;
+  font-style: normal;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-month {
+  margin: 24px 0 10px 0;
+  position: relative;
+  font-size: 14px;
+  font-weight: bold;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-month .date-pick-month-select {
+  cursor: pointer;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-month .date-pick-controls {
+  color: #999999;
+  cursor: pointer;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-month .date-pick-prev-month {
+  position: absolute;
+  top: 0;
+  left: 15px;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-month .date-pick-next-month {
+  position: absolute;
+  top: 0;
+  right: 15px;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-week-day {
+  height: 40px;
+  width: 14.2857%;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  padding-top: 5px;
+  line-height: 220%;
+  color: #999999;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-day {
+  height: 40px;
+  width: 14.2857%;
+  display: inline-block;
+  padding-top: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 220%;
+  cursor: pointer;
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-day.date-pick-selected-day,
+#date-pick-container.reject .date-pick .date-pick-body .date-pick-day.date-pick-selected-day {
+  background: #ffc5bd;
+  border-radius: 100%;
+  /*color: #FDFAF7;*/
+}
+#date-pick-container .date-pick .date-pick-body .date-pick-day.date-pick-extra-box {
+  font-size: 14px;
+  opacity: 0;
+  cursor: default;
+}
+#date-pick-container .show-date-pick {
+  display: block;
+}
+#date-pick-container #date-pick-month-current,
+#date-pick-container .date-pick .date-pick-body .date-pick-day  {
+  text-align: center;
+}
+
+
+#tit {
+  text-align: center;
+  font-size: 18px;
+  margin: 20px 0 13px 0;
+}
+#subtit {
+  text-align: center;
+  font-size: 13px;
+  font-weight: normal;
+  margin: 0;
+}
+.layout-centre {
+  margin: auto;
+  width: 320px;
+}
+.radio-action {
+  padding: 10px 0 10px 0;
+}
+.selected-date {
+  position: absolute;
+  top: 364px;
+  left: 0;
+  right: 0;
+}
+.selected-date label {
+  font-size: 13px;
+}
+#date-picker-input {
+  border: 0;
+  bottom: 0;
+  width: 225px;
+  font-size: 13px;
+  color: #273238;
+  background: #fafafa;
+  padding: 3px 5px;
+}
+#selected-resource {
+  height: 24px;
+  font-size: 12px;
+  width: 70px;
+  border: 0;
+  margin-top: 3px;
+}
+#schedule-button,
+#reject-button {
+  width: 80px;
+  height: 34px;
+  font-size: 13px;
+  font-weight: bold;
+  /*border-radius: 18px;*/
+  border: 0;
+  display: block;
+  margin: 12px auto;
+}
+#schedule-button,
+#reject-button {
+  color: #fff;
+  background: #fb4f38;
+}
+#schedule-button:hover,
+#schedule-button:visited,
+#schedule-button:focus,
+#reject-button:hover,
+#reject-button:visited,
+#reject-button:focus {
+  outline: 3px solid #e04e85;
+  outline-offset: 1px;
+}
+
+#selected-people.hidden {
+  display: none;
+}
+.radio {
+  margin: 0 13px;
+  display: inline-block;
+  cursor: pointer;
+}
+.radio input {
+  display: none;
+}
+.radio input + span {
+  line-height: 22px;
+  height: 22px;
+  padding-left: 22px;
+  display: block;
+  position: relative;
+}
+.label-action {
+  font-size: 14px;
+}
+.radio input + span:not(:empty) {
+  padding-left: 30px;
+}
+.radio input + span:before, .radio input + span:after {
+  content: "";
+  width: 22px;
+  height: 22px;
+  display: block;
+  border-radius: 50%;
+  left: 0;
+  top: 0;
+  position: absolute;
+}
+.radio input + span:before {
+  background: #bbbbbb;
+  transition: background 0.2s ease, -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2);
+  transition: background 0.2s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2);
+  transition: background 0.2s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2), -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2);
+}
+.radio input + span:after {
+  background: #fff;
+  -webkit-transform: scale(0.78);
+          transform: scale(0.78);
+  transition: -webkit-transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4), -webkit-transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+}
+.radio input:checked + span {
+  font-weight: bold;
+}
+.radio input:checked + span:before {
+  -webkit-transform: scale(1.04);
+          transform: scale(1.04);
+  background: #fb4f37;
+}
+.radio input:checked + span:after {
+  -webkit-transform: scale(0.4);
+          transform: scale(0.4);
+  transition: -webkit-transform 0.3s ease;
+  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, -webkit-transform 0.3s ease;
+}
+.radio:hover input + span:before {
+  -webkit-transform: scale(0.92);
+          transform: scale(0.92);
+}
+.radio:hover input + span:after {
+  -webkit-transform: scale(0.74);
+          transform: scale(0.74);
+}
+.radio:hover input:checked + span:after {
+  -webkit-transform: scale(0.4);
+          transform: scale(0.4);
+}
