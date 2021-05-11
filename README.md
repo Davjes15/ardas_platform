@@ -38,7 +38,7 @@ pip install -r requirements.txt
 Clone this repository to obtain the source code
 
 ```sh
-git clone https://github.com/google/pybadges.git
+git clone https://github.com/Davjes15/ardas_platform.git
 cd ardas_platform
 ```
 
@@ -78,7 +78,7 @@ To close the application, in command line press `control + c` (Windows) and `com
 ## Development
 
 ```sh
-git clone https://github.com/google/pybadges.git
+git clone https://github.com/Davjes15/ardas_platform.git
 cd ardas_platform
 python -m virtualenv venv
 source venv/bin/activate
