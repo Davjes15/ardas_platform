@@ -49,7 +49,7 @@ The command line interface is a great way to experiment with the platform before
 writing Python code or modifying the base code.
 
 ### Command line usage
-After installing Python, setting the virtual environment, installing all the requierements, and clone this repository user might follow these steps in the command line.
+After installing Python, setting the virtual environment, installing all the requierements, and cloning this repository user might follow these steps in the command line.
 
 Go to the folder `ardas_platform`
 ```sh
