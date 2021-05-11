@@ -5,6 +5,13 @@ Cognitive Engineering Lab - University of Toronto 2019
 Structure:
 - File ------- Description
 
+0. To access ARDAS menu enter the code 7796 on the LOCK symbol located on the left-hand side of the top menu on the interface.
+This menu presents different options:
+	* modify the rendering of the inteface.
+	* select the ML model behind the platform.
+	* simulate different scenarios by changing the sensor readings used as input data of the ML model.
+	* modify the type of information displayed to the user.
+
 1. ml_model : 
 	* contains machine learning models trained using the original hydraulic data set
 	* profile.txt file contains the condition of 4 components for the data set. These values are used as the target variable
