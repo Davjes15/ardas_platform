@@ -6,8 +6,6 @@
 # ARDAS Platform
 ARDAS is a human-in-the-loop predictive reliability Machine Learning-based simulation platform.
 
-`test david`
-
 ## Getting Started
 
 ### Installing
