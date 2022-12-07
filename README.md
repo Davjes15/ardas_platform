@@ -4,7 +4,8 @@
 [![PyPI version](https://badge.fury.io/py/requests.png)](https://badge.fury.io/py/requests)
 
 # ARDAS Platform
-TEST DAVID DEC 6 2022
+TEST DAVID DEC 6 2022 
+TES 2 JESS DEC 6 2022
 
 ARDAS is a human-in-the-loop predictive reliability Machine Learning-based simulation platform.
 
