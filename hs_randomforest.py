@@ -23,165 +23,145 @@
 # CP    Cooling power (virtual)    kW    1 Hz 
 # SE    Efficiency factor    %    1 Hz 
 
-
-#**************** Python Version : Python 3.7.3 ************
-# Package         Version
-# --------------- --------
-# aniso8601       7.0.0
-# certifi         2019.3.9
-# chardet         3.0.4
-# Click           7.0
-# configparser    3.7.4
-# cycler          0.10.0
-# databricks-cli  0.8.7
-# Flask           1.1.1
-# Flask-Cors      3.0.8
-# Flask-RESTful   0.3.7
-# idna            2.8
-# itsdangerous    1.1.0
-# Jinja2          2.10.1
-# joblib          0.13.2
-# jsonify         0.5
-# kiwisolver      1.1.0
-# MarkupSafe      1.1.1
-# matplotlib      3.1.1
-# numpy           1.17.0
-# pandas          0.25.1
-# pathlib         1.0.1
-# pip             19.2.3
-# pyparsing       2.4.2
-# python-dateutil 2.8.0
-# pytz            2019.1
-# requests        2.22.0
-# scikit-learn    0.21.3
-# scipy           1.3.1
-# seaborn         0.9.0
-# setuptools      40.8.0
-# six             1.12.0
-# sklearn         0.0
-# tabulate        0.8.3
-# urllib3         1.25.3
-# virtualenv      16.6.1
-# Werkzeug        0.15.4
-
-
-# Import libraries
-
 import pandas as pd
 import numpy as np
-import os, sys
+import os
+import sys
 import pickle
-import sklearn as sk
 from pathlib import Path
-from sklearn import preprocessing
-from sklearn.metrics import confusion_matrix, recall_score, precision_score, accuracy_score
+from datetime import datetime
+from typing import Tuple, Dict
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-
-# Define directories for reading and saving files
-path = os.path.abspath(os.path.dirname(sys.argv[0]))
-path_file= Path(path)
-ml_model_dir = path_file / "ml_model"
-os.chdir(ml_model_dir) # os.chdir changes the directory so we can import the data from a different directory depending on the computer
-print (os.getcwd())
-
-# Import feature extracted
-
-df_features = pd.read_csv('feature_hs.csv')
-print (df_features.head(10))
-print ("Features imported 100%")
-# Import target conditions
-names = ['cooler_condition', 'valve_condition', 'pump_leakage', 'hydraulic_accumulator', 'stable_flag']
-conditions = pd.read_csv('profile.txt',names = names, sep="\t")
-print (conditions.head(10))
-print ("Target Conditions imported 100%")
+from sklearn.base import ClassifierMixin
+from tqdm import tqdm
 
 
-# Define features
-X = df_features  # features file
+def save_fi(
+    feature_importances: np.ndarray,
+    feature_path: Path,
+    X_columns: pd.Index
+) -> None:
+    """
+    Save the top 6 most important features to a CSV file.
+
+    Parameters:
+        feature_importances (np.ndarray): Importance scores for each feature.
+        feature_path (Path): Destination path to save the CSV.
+        X_columns (pd.Index): Column names of the feature DataFrame.
+    """
+    df = pd.DataFrame(feature_importances, index=X_columns, columns=["Importance"])
+    df = df.sort_values("Importance", ascending=False).T.iloc[:, :6]
+    df.to_csv(feature_path, index=False)
+    print(f"📉 Feature importances saved to: {feature_path}")
 
 
-# Save feature importance as csv file
-def save_fi (data, path):
-    df = pd.DataFrame(data,
-                      index = X_train.columns,
-                      columns=['Importance']).sort_values('Importance',ascending=False)
-    data=df.T
-    data = data.iloc[:,0:6]
-    export_fi = data.to_csv (path, index = None, header=True)
-    return (export_fi)
+def train_rf(
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_train: pd.Series,
+    y_test: pd.Series,
+    label: str
+) -> Tuple[ClassifierMixin, float]:
+    """
+    Train a Random Forest classifier and return the model and its accuracy.
 
-# Trainnig a random forest algorithm    
-def train_rf (X_train, X_test, y_train, y_test, element):
-	# Initialize model 
-	rf = RandomForestClassifier(n_estimators= 1000, random_state=42)
-	# Train the model on training data
-	model_rf= rf.fit(X_train, y_train);
-	print (element + " Model Training Ready")
-	# Use the forest's predict method on the test data
-	predictions = rf.predict(X_test)
-	print(element + ' Accuracy Condition: %.2f%%' % (accuracy_score(predictions,y_test)*100))
-	return (model_rf)
+    Parameters:
+        X_train (pd.DataFrame): Training features.
+        X_test (pd.DataFrame): Testing features.
+        y_train (pd.Series): Training labels.
+        y_test (pd.Series): Testing labels.
+        label (str): Human-readable name of the target.
 
-def save_model_object(model_object,model_name,model_params):
-    file_name=model_name+"_"+str(model_params).replace('[',"").replace(']',"").replace(',',"_").replace(' ',"_")+".obj"
-    with open(file_name,'wb') as handle:
-        try:
-            pickle.dump(model_object,handle)
-        except:
-            print("ERROR")
-    print(file_name," saved successfully")
-# ---------------------------------------------------------------
+    Returns:
+        Tuple[ClassifierMixin, float]: Trained model and its accuracy score.
+    """
+    rf = RandomForestClassifier(n_estimators=1000, random_state=42)
+    model = rf.fit(X_train, y_train)
+    preds = model.predict(X_test)
+    acc = accuracy_score(y_test, preds)
+    print(f"✅ {label} model trained with accuracy: {acc:.2%}")
+    return model, acc
 
-# Train model for cooler condition classification
-Y = conditions["cooler_condition"] # define target value
-# split the data into training and testing setssplit_data (X,Y)
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 42)
-rf_cooler = train_rf (X_train, X_test, y_train, y_test, "Cooler")
-# X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.30,random_state = 42)
-# rf = RandomForestClassifier(n_estimators= 1000, random_state=42)
-# rf.fit(X_train, y_train);
-# print ('Model training 100%')
-# predictions = rf.predict(X_test)
-# print('Accuracy Cooler Condition: %.2f%%' % (accuracy_score(predictions,y_test)*100))
 
-#Save machine learning model
-save_model_object(rf_cooler,"random_forest","c")
+def save_model_object(
+    model: ClassifierMixin,
+    model_name: str,
+    model_param: str,
+    version: str,
+    output_dir: Path
+) -> None:
+    """
+    Save a trained model object using pickle.
 
-# Create a dataframe with feature importance
-fic_path = path_file / 'static' / 'hs_database'/ 'feature_cooler.csv'
-fi_c=rf_cooler.feature_importances_
-save_fi (fi_c, fic_path)
+    Parameters:
+        model (ClassifierMixin): Trained scikit-learn model.
+        model_name (str): Name of the model.
+        model_param (str): Suffix to distinguish the model.
+        version (str): Version string for versioning.
+        output_dir (Path): Directory to save the model.
+    """
+    filename = f"{model_name}_{model_param}_{version}.pkl"
+    filepath = output_dir / filename
+    with open(filepath, "wb") as f:
+        pickle.dump(model, f)
+    print(f"💾 Model saved to: {filepath}")
 
-#-----------------------------------------------------------------
 
-# Train model for valve condition classification
-Yval = conditions["valve_condition"]
-X_train, X_test, y_train, y_test = train_test_split(X, Yval, test_size = 0.3, random_state = 42)
-rf_valve = train_rf (X_train, X_test, y_train, y_test, "Valve")
-save_model_object(rf_valve,"random_forest","v")
-fiv_path = path_file / 'static' / 'hs_database'/ 'feature_valve.csv'
-fi_v=rf_valve.feature_importances_
-save_fi (fi_v, fiv_path)
-#-----------------------------------------------------------------
+def main() -> None:
+    """
+    Main function to load data, train models for each target condition,
+    save the trained models and their feature importances.
+    """
+    MODEL_VERSION = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path_file = Path(os.path.abspath(os.path.dirname(sys.argv[0])))
+    model_output_dir = path_file / "ml_model" / MODEL_VERSION
+    model_output_dir.mkdir(parents=True, exist_ok=True)
 
-# Train model for pump condition classification
-Ypum = conditions["pump_leakage"]
-X_train, X_test, y_train, y_test = train_test_split(X, Ypum, test_size = 0.3, random_state = 42)
-rf_pump = train_rf (X_train, X_test, y_train, y_test, "Pump")
-save_model_object(rf_pump,"random_forest","p")
-fip_path = path_file / 'static' / 'hs_database'/ 'feature_pump.csv'
-fi_p=rf_pump.feature_importances_
-save_fi (fi_p, fip_path)
+    print("🚀 Starting model training and export")
+    print(f"📦 Model version: {MODEL_VERSION}")
+    print(f"📂 Output directory created: {model_output_dir}")
 
-#-----------------------------------------------------------------
+    # Load datasets
+    print("📄 Loading features and target conditions...")
+    df_features = pd.read_csv(path_file / "ml_model" / "feature_hs.csv")
+    target_names = [
+        'cooler_condition',
+        'valve_condition',
+        'pump_leakage',
+        'hydraulic_accumulator',
+        'stable_flag'
+    ]
+    conditions = pd.read_csv(
+        path_file / "ml_model" / "profile.txt", names=target_names, sep="\t"
+    )
+    print("✅ Data loaded successfully!")
 
-# Train model for accumulator condition classification
+   # Set up model suffixes and desired file name suffixes in one place
+    targets = {
+        "c": ("cooler_condition", "cooler"),
+        "v": ("valve_condition", "valve"),
+        "p": ("pump_leakage", "pump"),
+        "a": ("hydraulic_accumulator", "acc")
+    }
 
-Yacc = conditions["hydraulic_accumulator"]
-X_train, X_test, y_train, y_test = train_test_split(X, Yacc, test_size = 0.3, random_state = 42)
-rf_acc = train_rf (X_train, X_test, y_train, y_test, "Accumulator")
-save_model_object(rf_acc ,"random_forest","a")
-fia_path = path_file / 'static' / 'hs_database'/ 'feature_acc.csv'
-fi_a=rf_acc.feature_importances_
-save_fi (fi_a, fia_path)
+    print("\n📊 Beginning training loop...\n")
+    for suffix, (target_column, output_name) in tqdm(targets.items(), desc="Training models"):
+        print(f"\n🔧 Processing: {target_column}")
+        Y = conditions[target_column]
+        X_train, X_test, y_train, y_test = train_test_split(
+            df_features, Y, test_size=0.3, random_state=42
+        )
+
+        model, acc = train_rf(X_train, X_test, y_train, y_test, target_column.capitalize())
+        save_model_object(model, "random_forest", suffix, MODEL_VERSION, model_output_dir)
+
+        feature_path = path_file / "static" / "hs_database" / f"feature_{output_name}.csv"
+        save_fi(model.feature_importances_, feature_path, df_features.columns)
+
+    print("\n✅ All models trained, evaluated, and saved successfully!")
+
+
+if __name__ == "__main__":
+    main()
