@@ -1,0 +1,26 @@
+[project]
+name = "ardas-platform"
+version = "0.1.0"
+description = "ARDAS is a human-in-the-loop predictive reliability Machine Learning-based simulation platform"
+authors = [
+    {name = "David Quispe"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "pandas (>=2.2.3,<3.0.0)",
+    "scikit-learn (>=1.6.1,<2.0.0)",
+    "numpy (>=2.2.4,<3.0.0)",
+    "flask (>=3.1.0,<4.0.0)",
+    "scipy (>=1.15.2,<2.0.0)",
+    "joblib (>=1.4.2,<2.0.0)",
+    "requests (>=2.32.3,<3.0.0)",
+    "flask-cors (>=5.0.1,<6.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
