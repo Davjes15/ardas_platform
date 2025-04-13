@@ -52,26 +52,54 @@ window.onload = function() {
 		let nodeBtn = document.createTextNode(recordBtn);
 		let listBox = document.getElementById("data-list");
 
-		// Caculate between times to add before appending new para with time
-		if ( listBox.childNodes.length > 0 ) {
-			let beforeTime = listBox.lastElementChild.textContent.split('-')[0];
-			let newTime = recordTime.toString().split('-')[0];
-			let betweenTime = Date.parse(newTime) - Date.parse(beforeTime);
-			var converedTime;
+		// Remove the placeholder if it's still there
+		let placeholder = document.getElementById("placeholder-msg");
+		if (placeholder) placeholder.remove();
+
+		// Caculate times between entries to add before appending new para with time
+		// if ( listBox.childNodes.length > 0 ) {
+		// 	let beforeTime = listBox.lastElementChild.textContent.split('-')[0];
+		// 	let newTime = recordTime.toString().split('-')[0];
+		// 	let betweenTime = Date.parse(newTime) - Date.parse(beforeTime);
+		// 	var converedTime;
+		// 	function convertTime(d) {
+		// 		let	scd = parseInt( (d/1000)%60 ),
+		// 			m = parseInt( (d/(1000*60))%60 ),
+		// 			h = parseInt( (d/(1000*60*60))%24 );
+		// 			console.log("beforeTime: ", beforeTime);
+		// 			console.log("newTime: ", newTime);
+		// 		converedTime = " + " + h + " hour(s) " + " " + m + " minute(s) " + " " + scd + " second(s)";
+		// 		return converedTime;
+		// 	}
+		// 	convertTime(betweenTime);
+		// 	var nodeBetweenTime = document.createTextNode(converedTime);
+		// } else {
+		// 	var nodeBetweenTime = document.createTextNode(" ");
+		// }
+		// Calculate time between entries
+		if (listBox.childNodes.length > 0) {
+			let beforeTimeStr = listBox.lastElementChild.textContent.split(" : ")[0];  // get full time string
+			let newTimeStr = recordTime.toString();
+
+			let beforeTime = new Date(beforeTimeStr);
+			let newTime = new Date(newTimeStr);
+
+			let betweenTime = newTime - beforeTime;  // milliseconds
+			let convertedTime;
+
 			function convertTime(d) {
-				let	scd = parseInt( (d/1000)%60 ),
-					m = parseInt( (d/(1000*60))%60 ),
-					h = parseInt( (d/(1000*60*60))%24 );
-					console.log("beforeTime: ", beforeTime);
-					console.log("newTime: ", newTime);
-				converedTime = " + " + h + " hour(s) " + " " + m + " minute(s) " + " " + scd + " second(s)";
-				return converedTime;
+				let scd = parseInt((d / 1000) % 60),
+					m = parseInt((d / (1000 * 60)) % 60),
+					h = parseInt((d / (1000 * 60 * 60)) % 24);
+				convertedTime = " + " + h + " hour(s) " + m + " minute(s) " + scd + " second(s)";
+				return convertedTime;
 			}
 			convertTime(betweenTime);
-			var nodeBetweenTime = document.createTextNode(converedTime);
+			var nodeBetweenTime = document.createTextNode(convertedTime);
 		} else {
 			var nodeBetweenTime = document.createTextNode(" ");
 		}
+
 		// append all time and nodes to new p element
 		para.appendChild(nodeTime);
 		para.appendChild(nodeBtn);

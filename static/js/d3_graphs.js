@@ -1475,9 +1475,9 @@ d3.csv("/static/hs_database/history_acc.csv", function(error, data) {
 			if ( drawBox.children() !== false ) {
 				drawBox.children().empty();
 			} 
-			if (currentModel == "rf") {
+			if (currentModel == "random_forest") {
 				d = rf_d;
-			} else if (currentModel == "lr") {
+			} else if (currentModel == "logistic_regression") {
 				d = lr_d;
 			}
 			
