@@ -116,7 +116,7 @@ def train_lr (X_train, X_test, y_train, y_test, element):
 	# Initialize model 
 	lr = LogisticRegression(multi_class = 'ovr', solver = 'liblinear')
     #Train the model on training data
-	model_lr= lr.fit(X_train, y_train);
+	model_lr= lr.fit(X_train, y_train)
 	print (element + " Model Training Ready")
 	# Use the LR's predict method on the test data
 	predictions = lr.predict(X_test)
