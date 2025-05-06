@@ -5,10 +5,11 @@ import os
 import sys
 import pickle
 from pathlib import Path
-from typing import Tuple, Dict, Callable
+from typing import Tuple, Dict, Callable, Any
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.base import ClassifierMixin
+from sklearn.inspection import permutation_importance
 
 
 def load_data(path_file: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -46,18 +47,53 @@ def save_model_object(
     print(f"💾 Model saved to: {filepath}")
 
 
-def save_fi(
-    feature_importances: np.ndarray,
+def save_feature_importances(
+    model: Any,
     feature_path: Path,
-    X_columns: pd.Index
+    feature_names: pd.Index,
+    X_test: pd.DataFrame = None,
+    y_test: pd.Series = None,
+    scoring: str = "accuracy"
 ) -> None:
     """
-    Save the top 6 most important features to a CSV file.
+    Compute and save permutation-based feature importances for any model.
+
+    Parameters:
+    - model: a trained model or pipeline with a predict or predict_proba method
+    - feature_path: where to save the output CSV
+    - feature_names: names of the features (columns)
+    - X_test: test features for permutation importance
+    - y_test: test labels
+    - scoring: performance metric to evaluate impact (default: accuracy)
     """
-    df = pd.DataFrame(feature_importances, index=X_columns, columns=["Importance"])
-    df = df.sort_values("Importance", ascending=False).T.iloc[:, :6]
-    df.to_csv(feature_path, index=False)
-    print(f"📉 Feature importances saved to: {feature_path}")
+    if X_test is None or y_test is None:
+        print("❌ X_test and y_test must be provided for permutation importance.")
+        return
+
+    try:
+        result = permutation_importance(
+            model, X_test, y_test, scoring=scoring, n_repeats=10, random_state=42, n_jobs=-1
+        )
+    except Exception as e:
+        print(f"❌ Failed to compute permutation importance: {e}")
+        return
+
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "importance_mean": result.importances_mean,
+        "importance_std": result.importances_std
+    }).sort_values("importance_mean", ascending=False)
+
+    if hasattr(model, "named_steps"):
+        model_type = type(list(model.named_steps.values())[-1]).__name__
+    else:
+        model_type = type(model).__name__
+    filename = feature_path.stem + f"_{model_type}.csv"
+    file_path = feature_path.with_name(filename)
+
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    importance_df.to_csv(file_path, index=False)
+    print(f"📄 Permutation feature importances saved to {file_path}")
 
 
 def train_and_save_all(
@@ -67,7 +103,7 @@ def train_and_save_all(
     output_dir: Path,
     df_features: pd.DataFrame,
     conditions: pd.DataFrame,
-    save_fi_fn: Callable[[ClassifierMixin, Path, pd.Index], None] = None
+    save_fi_fn: Callable[[ClassifierMixin, Path, pd.Index, pd.DataFrame, pd.Series], None] = save_feature_importances
 ) -> None:
     """
     Generic training loop to train and save models.
@@ -85,7 +121,6 @@ def train_and_save_all(
         X_train, X_test, y_train, y_test = train_test_split(
             df_features, Y, test_size=0.3, random_state=42
         )
-
         model = classifier_fn(X_train, y_train)
         preds = model.predict(X_test)
         acc = accuracy_score(y_test, preds)
@@ -93,6 +128,6 @@ def train_and_save_all(
 
         save_model_object(model, model_name, suffix, version, output_dir)
 
-        if save_fi_fn and hasattr(model, "feature_importances_"):
+        if save_fi_fn:
             feature_path = output_dir.parent.parent / "static" / "hs_database" / f"feature_{output_name}.csv"
-            save_fi_fn(model.feature_importances_, feature_path, df_features.columns)
+            save_fi_fn(model, feature_path, df_features.columns, X_test, y_test)
