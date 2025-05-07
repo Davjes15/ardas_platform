@@ -312,19 +312,19 @@ $(document).ready(function() {
 	let requestURL = 'http://127.0.0.1:5000/data/?cycle=' + currentCycle + '&model=' + currentModel;
 	let predictionCooler, predictionValve, predictionPump, predictionAcc;
 	let interpretation = "",
-			recommendarion = "";
+			recommendation = "";
 
 	let confiRateCooler = $("#confiRate-cooler"),
 	 		confiRateValve = $("#confiRate-valve"),
 	 		confiRatePump = $("#confiRate-pump"),
 	 		confiRateAcc = $("#confiRate-acc");
 
-	currentModel == "rf" ? (
+	currentModel == "random_forest" ? (
 		confiRateCooler.text("99.70%"),
 		confiRateValve.text("99.24%"),
 		confiRatePump.text("99.40%"),
 		confiRateAcc.text("98.45%")
-	) : currentModel == "lr" ? (
+	) : currentModel == "logistic_regression" ? (
 		confiRateCooler.text("99.55%"),
 		confiRateValve.text("84.29%"),
 		confiRatePump.text("97.58%"),
@@ -337,82 +337,83 @@ $(document).ready(function() {
 	);
 
 	$.getJSON(requestURL, function(data) {
-		predictionCooler = data['cooler'];
-		predictionValve = data['valve'];
-		predictionPump = data['pump'];
-		predictionAcc = data['acc'];
+		predictionCooler = data['cooler']['prediction'];
+		predictionValve = data['valve']['prediction'];
+		predictionPump = data['pump']['prediction'];
+		predictionAcc = data['acc']['prediction'];
+
 		// Cooler
 		predictionCooler == 3 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightCooler.addClass('alert_l4'), lightCooler.removeClass('alert_l1 alert_l2'),
 			btnsCooler.removeClass('off')
 		) : predictionCooler == 20 ? (
-			interpretation = "Reduced efficiency", recommendarion = "Expect to replace",
+			interpretation = "Reduced efficiency", recommendation = "Expect to replace",
 			lightCooler.addClass('alert_l2'), lightCooler.removeClass('alert_l1 alert_l4'),
 			btnsCooler.removeClass('off')
 		) : ( 
-			interpretation = "Full efficiency", recommendarion = "Do not replace",
+			interpretation = "Full efficiency", recommendation = "Do not replace",
 			lightCooler.addClass('alert_l1'), lightCooler.removeClass('alert_l2 alert_l4'),
 			btnsCooler.removeClass('off')
 		);
 		sugCooler.html(interpretation);
-		recommCooler.html(recommendarion);
+		recommCooler.html(recommendation);
 		// Valve
 		predictionValve == 73 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightValve.addClass('alert_l4'), lightValve.removeClass('alert_l1 alert_l2 alert_l3'),
 			btnsValve.removeClass('off')
 		) : predictionValve == 80 ? ( 
-			interpretation = "Severe lag", recommendarion = "Expect to replace",
+			interpretation = "Severe lag", recommendation = "Expect to replace",
 			lightValve.addClass('alert_l3'), lightValve.removeClass('alert_l1 alert_l2 alert_l4'),
 			btnsValve.removeClass('off')
 		) : predictionValve == 90 ? ( 
-			interpretation = "Small lag", recommendarion = "Expect to replace",
+			interpretation = "Small lag", recommendation = "Expect to replace",
 			lightValve.addClass('alert_l2'), lightValve.removeClass('alert_l1 alert_l3 alert_l4'),
 			btnsValve.removeClass('off')
 		) : ( 
-			interpretation = "Optimal switching", recommendarion = "Do not replace",
+			interpretation = "Optimal switching", recommendation = "Do not replace",
 			lightValve.addClass('alert_l1'), lightValve.removeClass('alert_l2 alert_l3 alert_l4'),
 			btnsValve.removeClass('off')
 		);
 		sugValve.html(interpretation);
-		recommValve.html(recommendarion);
+		recommValve.html(recommendation);
 		// Pump
 		predictionPump == 2 ? ( 
-			interpretation = "Severe leakage", recommendarion = "Replace immediately",
+			interpretation = "Severe leakage", recommendation = "Replace immediately",
 			lightPump.addClass('alert_l4'), lightPump.removeClass('alert_l1 alert_l2'),
 			btnsPump.removeClass('off')
 		) : predictionPump == 1 ? ( 
-			interpretation = "Weak leakage", recommendarion = "Expect to replace",
+			interpretation = "Weak leakage", recommendation = "Expect to replace",
 			lightPump.addClass('alert_l2'), lightPump.removeClass('alert_l1 alert_l4'),
 			btnsPump.removeClass('off')
 		) : ( 
-			interpretation = "No leakage", recommendarion = "Do not replace",
+			interpretation = "No leakage", recommendation = "Do not replace",
 			lightPump.addClass('alert_l1'), lightPump.removeClass('alert_l2 alert_l4'),
 			btnsPump.removeClass('off')
 		);
 		sugPump.html(interpretation);
-		recommPump.html(recommendarion);
+		recommPump.html(recommendation);
 		// Acc
 		predictionAcc == 90 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightAcc.addClass('alert_l4'), lightAcc.removeClass('alert_l1 alert_l2 alert_l3'),
 			btnsAcc.removeClass('off')
 		) : predictionAcc == 100 ? ( 
-			interpretation = "Severe low pressure", recommendarion = "Expect to replace",
+			interpretation = "Severe low pressure", recommendation = "Expect to replace",
 			lightAcc.addClass('alert_l3'), lightAcc.removeClass('alert_l1 alert_l2 alert_l4'),
 			btnsAcc.removeClass('off')
 		) : predictionAcc == 115 ? ( 
-			interpretation = "Slightly low pressure", recommendarion = "Expect to replace",
+			interpretation = "Slightly low pressure", recommendation = "Expect to replace",
 			lightAcc.addClass('alert_l2'), lightAcc.removeClass('alert_l1 alert_l3 alert_l4'),
 			btnsAcc.removeClass('off')
 		) : ( 
-			interpretation = "Optimal pressure", recommendarion = "Do not replace",
+			interpretation = "Optimal pressure", recommendation = "Do not replace",
 			lightAcc.addClass('alert_l1'), lightAcc.removeClass('alert_l2 alert_l3 alert_l4'),
 			btnsAcc.removeClass('off')
 		);
 		sugAcc.html(interpretation);
-		recommAcc.html(recommendarion);
+		recommAcc.html(recommendation);
 	});
 });
 
@@ -422,7 +423,7 @@ const getData = () => {
 	let requestURL = 'http://127.0.0.1:5000/data/?cycle=' + currentCycle + '&model=' + currentModel;
 	let predictionCooler, predictionValve, predictionPump, predictionAcc;
 	let interpretation = "",
-			recommendarion = "";
+			recommendation = "";
 
 	drawBox_1_chart.addClass("off");
 	drawBox_2_chart.addClass("off");
@@ -447,12 +448,12 @@ const getData = () => {
 	 		confiRateValve = $("#confiRate-valve"),
 	 		confiRatePump = $("#confiRate-pump"),
 	 		confiRateAcc = $("#confiRate-acc");
-	currentModel == "rf" ? (
+	currentModel == "random_forest" ? (
 		confiRateCooler.text("99.70%"),
 		confiRateValve.text("99.24%"),
 		confiRatePump.text("99.40%"),
 		confiRateAcc.text("98.45%")
-	) : currentModel == "lr" ? (
+	) : currentModel == "logistic_regression" ? (
 		confiRateCooler.text("99.55%"),
 		confiRateValve.text("84.29%"),
 		confiRatePump.text("97.58%"),
@@ -465,82 +466,82 @@ const getData = () => {
 	);
 
 	$.getJSON(requestURL, function(data) {
-		predictionCooler = data['cooler'];
-		predictionValve = data['valve'];
-		predictionPump = data['pump'];
-		predictionAcc = data['acc'];
+		predictionCooler = data['cooler']['prediction'];
+		predictionValve = data['valve']['prediction'];
+		predictionPump = data['pump']['prediction'];
+		predictionAcc = data['acc']['prediction'];
 		// Cooler
 		predictionCooler == 3 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightCooler.addClass('alert_l4'), lightCooler.removeClass('alert_l1 alert_l2'),
 			dateCooler.addClass('off'), btnsCooler.removeClass('off')
 		) : predictionCooler == 20 ? (
-			interpretation = "Reduced efficiency", recommendarion = "Expect to replace",
+			interpretation = "Reduced efficiency", recommendation = "Expect to replace",
 			lightCooler.addClass('alert_l2'), lightCooler.removeClass('alert_l1 alert_l4'),
 			dateCooler.addClass('off'), btnsCooler.removeClass('off')
 		) : ( 
-			interpretation = "Full efficiency", recommendarion = "Do not replace",
+			interpretation = "Full efficiency", recommendation = "Do not replace",
 			lightCooler.addClass('alert_l1'), lightCooler.removeClass('alert_l2 alert_l4'),
 			dateCooler.addClass('off'), btnsCooler.removeClass('off')
 		);
 		sugCooler.html(interpretation);
-		recommCooler.html(recommendarion);
+		recommCooler.html(recommendation);
 		// Valve
 		predictionValve == 73 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightValve.addClass('alert_l4'), lightValve.removeClass('alert_l1 alert_l2 alert_l3'),
 			dateValve.addClass('off'), btnsValve.removeClass('off')
 		) : predictionValve == 80 ? ( 
-			interpretation = "Severe lag", recommendarion = "Expect to replace",
+			interpretation = "Severe lag", recommendation = "Expect to replace",
 			lightValve.addClass('alert_l3'), lightValve.removeClass('alert_l1 alert_l2 alert_l4'),
 			dateValve.addClass('off'), btnsValve.removeClass('off')
 		) : predictionValve == 90 ? ( 
-			interpretation = "Small lag", recommendarion = "Expect to replace",
+			interpretation = "Small lag", recommendation = "Expect to replace",
 			lightValve.addClass('alert_l2'), lightValve.removeClass('alert_l1 alert_l3 alert_l4'),
 			dateValve.addClass('off'), btnsValve.removeClass('off')
 		) : ( 
-			interpretation = "Optimal switching", recommendarion = "Do not replace",
+			interpretation = "Optimal switching", recommendation = "Do not replace",
 			lightValve.addClass('alert_l1'), lightValve.removeClass('alert_l2 alert_l3 alert_l4'),
 			dateValve.addClass('off'), btnsValve.removeClass('off')
 		);
 		sugValve.html(interpretation);
-		recommValve.html(recommendarion);
+		recommValve.html(recommendation);
 		// Pump
 		predictionPump == 2 ? ( 
-			interpretation = "Severe leakage", recommendarion = "Replace immediately",
+			interpretation = "Severe leakage", recommendation = "Replace immediately",
 			lightPump.addClass('alert_l4'), lightPump.removeClass('alert_l1 alert_l2'),
 			datePump.addClass('off'), btnsPump.removeClass('off')
 		) : predictionPump == 1 ? ( 
-			interpretation = "Weak leakage", recommendarion = "Expect to replace",
+			interpretation = "Weak leakage", recommendation = "Expect to replace",
 			lightPump.addClass('alert_l2'), lightPump.removeClass('alert_l1 alert_l4'),
 			datePump.addClass('off'), btnsPump.removeClass('off')
 		) : ( 
-			interpretation = "No leakage", recommendarion = "Do not replace",
+			interpretation = "No leakage", recommendation = "Do not replace",
 			lightPump.addClass('alert_l1'), lightPump.removeClass('alert_l2 alert_l4'),
 			datePump.addClass('off'), btnsPump.removeClass('off')
 		);
 		sugPump.html(interpretation);
-		recommPump.html(recommendarion);
+		recommPump.html(recommendation);
 		// Acc
 		predictionAcc == 90 ? ( 
-			interpretation = "Close to total failure", recommendarion = "Replace immediately",
+			interpretation = "Close to total failure", recommendation = "Replace immediately",
 			lightAcc.addClass('alert_l4'), lightAcc.removeClass('alert_l1 alert_l2 alert_l3'),
 			dateAcc.addClass('off'), btnsAcc.removeClass('off')
 		) : predictionAcc == 100 ? ( 
-			interpretation = "Severe low pressure", recommendarion = "Expect to replace",
+			interpretation = "Severe low pressure", recommendation = "Expect to replace",
 			lightAcc.addClass('alert_l3'), lightAcc.removeClass('alert_l1 alert_l2 alert_l4'),
 			dateAcc.addClass('off'), btnsAcc.removeClass('off')
 		) : predictionAcc == 115 ? ( 
-			interpretation = "Slightly low pressure", recommendarion = "Expect to replace",
+			interpretation = "Slightly low pressure", recommendation = "Expect to replace",
 			lightAcc.addClass('alert_l2'), lightAcc.removeClass('alert_l1 alert_l3 alert_l4'),
 			dateAcc.addClass('off'), btnsAcc.removeClass('off')
 		) : ( 
-			interpretation = "Optimal pressure", recommendarion = "Do not replace",
+			interpretation = "Optimal pressure", recommendation = "Do not replace",
 			lightAcc.addClass('alert_l1'), lightAcc.removeClass('alert_l2 alert_l3 alert_l4'),
 			dateAcc.addClass('off'), btnsAcc.removeClass('off')
 		);
 		sugAcc.html(interpretation);
-		recommAcc.html(recommendarion);
+		recommAcc.html(recommendation);
 	});
 };
 
