@@ -156,7 +156,7 @@ def get_predictions(model_type: str, cycle: int) -> Dict[str, dict]:
                     shap_vector = shap_vals[0, :, y_pred]  # (1, features, classes) → shap vector for pred class
                 else:
                     raise ValueError("Unexpected SHAP output format for tree explainer.")
-                print(shap_vector.shape)
+                print(f"✅ SHAP vector shape: {shap_vector.shape}")
 
             elif shap_type == "linear":
                 """
@@ -170,35 +170,12 @@ def get_predictions(model_type: str, cycle: int) -> Dict[str, dict]:
                 masker = shap.maskers.Independent(background)
                 explainer = shap.LinearExplainer(model, masker=masker)
                 shap_vals = explainer.shap_values(selected_features)
-                print("Max weight across all classes:", np.max(np.abs(model.coef_)))
-                print("Min non-zero weight:", np.min(np.abs(model.coef_[model.coef_ != 0])))
-                print(f"Model coefficients shape: {model.coef_.shape}")
-                print(f"SHAP values shape: {shap_vals.shape}")
-                print(f"Sample input: {selected_features.shape}")
-                print(f"SHAP values shape: {shap_vals.shape}")
                
                 if y_pred_value not in model.classes_:
                     raise ValueError(f"Predicted value {y_pred_value} not in model.classes_: {model.classes_}")
                 y_pred = list(model.classes_).index(y_pred_value)
                 shap_vector = shap_vals[0, :, y_pred]
                 print(f"✅ SHAP vector shape: {shap_vector.shape}")
-                print(f"SHAP vector: {shap_vector}")
-                print("I am here")
-            # elif shap_type == "linear":
-            #     if not hasattr(model, "estimators_"):
-            #         raise ValueError("Expected OneVsRestClassifier with estimators_ for SHAP linear mode.")
-
-            #     value_to_index = CLASS_VALUE_TO_INDEX[label]
-            #     if y_pred_value not in value_to_index:
-            #         raise ValueError(f"Predicted value {y_pred_value} not valid for component {label}")
-
-            #     y_pred = value_to_index[y_pred_value]
-            #     estimator = model.estimators_[y_pred]
-
-            #     explainer = shap.LinearExplainer(estimator, selected_features, feature_perturbation="interventional")
-            #     shap_values = explainer.shap_values(selected_features)
-            #     shap_vector = shap_values[0]
-            #     print(f"✅ SHAP vector shape: {shap_vector.shape}")
                 
             elif shap_type == "deep":
                 # Placeholder for LSTM: load background + tensor input
