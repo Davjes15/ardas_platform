@@ -4,14 +4,15 @@
 	Declared Global Scope Variables
 	------------------------------------------------
 */
+let globalShapData = {};  // Holds all SHAP values from the backend
 var btnReason = $("#btn_m_reason"),
 	btnSensors = $("#btn_m_sensors"),
 	btnHistory = $("#btn_m_history"),
 	btnConfidRate = $("#btn_m_confidenceRate"),
 	btnFeature = $("#btn_m_featureWeights"),
-	btnCritical = $("#btn_m_criticality"),
-	btnResources = $("#btn_m_resources"),
-	btnOprHrs = $("#btn_m_oprhours"),
+	// btnCritical = $("#btn_m_criticality"),
+	// btnResources = $("#btn_m_resources"),
+	// btnOprHrs = $("#btn_m_oprhours"),
 
 	drawCol_1 = $(".recomm_act"),
 	drawCol_2 = $(".col-confiRate"),
@@ -23,9 +24,9 @@ var btnReason = $("#btn_m_reason"),
 	drawBox_3_chart = $("#graph_history .chart"),
 	drawBox_4 = $("#graph_bar .draw"),
 	drawBox_4_chart = $("#graph_bar .chart"),
-	drawTbl_1 = $("#tbl_crtclty"),
-	drawTbl_2 = $("#tbl_oprHrs"),
-	drawTbl_3 = $("#tbl_resources"),
+	// drawTbl_1 = $("#tbl_crtclty"),
+	// drawTbl_2 = $("#tbl_oprHrs"),
+	// drawTbl_3 = $("#tbl_resources"),
 
 	emptyBox_1 = $("#graph_sensor_1 .empty_data"),
 	emptyBox_2 = $("#graph_sensor_2 .empty_data"),
@@ -35,9 +36,9 @@ var btnReason = $("#btn_m_reason"),
 	lockBox_2 = $("#graph_sensor_2 .lock_data"),
 	lockBox_3 = $("#graph_history .lock_data"),
 	lockBox_4 = $("#graph_bar .lock_data"),
-	lockTbl_1 = $("#r_crtclty .lock_data"),
-	lockTbl_2 = $("#r_oprHrs .lock_data"),
-	lockTbl_3 = $("#r_resources .lock_data"),
+	// lockTbl_1 = $("#r_crtclty .lock_data"),
+	// lockTbl_2 = $("#r_oprHrs .lock_data"),
+	// lockTbl_3 = $("#r_resources .lock_data"),
 	titSensorL = $("#tit_sensorL"),
 	titSensorR = $("#tit_sensorR"),
 	titSensorCo = $("#tit_sensor_co"),
@@ -45,6 +46,27 @@ var btnReason = $("#btn_m_reason"),
 	titFeature = $("#graph_feature_tit");
 
 
+/* 
+	Name : parseShapFeatures
+	Desc : Parse SHAP features for visualization
+	------------------------------------------------
+*/
+
+function parseShapFeatures(shapList) {
+	const momentMap = { 'M': 'Mean', 'V': 'Variance', 'S': 'Skewness', 'K': 'Kurtosis' };
+	let sensors = new Set();
+	let data = shapList.map(d => {
+		let [sensor, momentCode] = d.feature.split('_');
+		sensors.add(sensor);
+		return {
+			sensor: sensor,
+			moment: momentMap[momentCode],
+			value: d.value,
+			shap: d.shap
+		};
+	});
+	return { data, sensors: Array.from(sensors), moments: ['Mean', 'Variance', 'Skewness', 'Kurtosis'] };
+}
 
 
 /* 
@@ -93,9 +115,9 @@ function topmenuOnOff(){
 			detectBtn(lockBox_1, btnSensors, emptyBox_1);
 			detectBtn(lockBox_3, btnHistory, emptyBox_3);
 			detectBtn(lockBox_4, btnFeature, emptyBox_4);
-			detectBtn(lockTbl_1, btnCritical);
-			detectBtn(lockTbl_2, btnOprHrs);
-			detectBtn(lockTbl_3, btnResources);
+			// detectBtn(lockTbl_1, btnCritical);
+			// detectBtn(lockTbl_2, btnOprHrs);
+			// detectBtn(lockTbl_3, btnResources);
 			// below function ( detectBtnTbl ) is for inside of table column
 			function detectBtnTbl(col, btn) {
 				if ( col.hasClass('off') == false ) {
@@ -214,9 +236,9 @@ function topmenuOnOff(){
 			}
 		});
 	}
-	lockOnOffTbl(btnCritical, drawTbl_1, lockTbl_1);
-	lockOnOffTbl(btnOprHrs, drawTbl_2, lockTbl_2);
-	lockOnOffTbl(btnResources, drawTbl_3, lockTbl_3);
+	// lockOnOffTbl(btnCritical, drawTbl_1, lockTbl_1);
+	// lockOnOffTbl(btnOprHrs, drawTbl_2, lockTbl_2);
+	// lockOnOffTbl(btnResources, drawTbl_3, lockTbl_3);
 
 })();
 
@@ -341,6 +363,14 @@ $(document).ready(function() {
 		predictionValve = data['valve']['prediction'];
 		predictionPump = data['pump']['prediction'];
 		predictionAcc = data['acc']['prediction'];
+
+		// Save SHAP values for each component globally
+		globalShapData = {
+			cooler: parseShapFeatures(data['cooler']['shap_values']),
+			valve: parseShapFeatures(data['valve']['shap_values']),
+			pump: parseShapFeatures(data['pump']['shap_values']),
+			acc: parseShapFeatures(data['acc']['shap_values'])
+		};
 
 		// Cooler
 		predictionCooler == 3 ? ( 
@@ -470,6 +500,15 @@ const getData = () => {
 		predictionValve = data['valve']['prediction'];
 		predictionPump = data['pump']['prediction'];
 		predictionAcc = data['acc']['prediction'];
+
+		// Save SHAP values for each component globally
+		globalShapData = {
+			cooler: parseShapFeatures(data['cooler']['shap_values']),
+			valve: parseShapFeatures(data['valve']['shap_values']),
+			pump: parseShapFeatures(data['pump']['shap_values']),
+			acc: parseShapFeatures(data['acc']['shap_values'])
+		};
+
 		// Cooler
 		predictionCooler == 3 ? ( 
 			interpretation = "Close to total failure", recommendation = "Replace immediately",
@@ -622,5 +661,3 @@ recordDate(accpCooler, rejCooler, btnsCooler, dateCooler, lightCooler);
 recordDate(accpValve, rejValve, btnsValve, dateValve, lightValve);
 recordDate(accpPump, rejPump, btnsPump, datePump, lightPump);
 recordDate(accpAcc, rejAcc, btnsAcc, dateAcc, lightAcc);
-
-
