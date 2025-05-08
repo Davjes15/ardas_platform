@@ -46,9 +46,9 @@
 				<button type="button" class="btn_m" id="btn_m_sensors">Sensors</button>
 				<button type="button" class="btn_m" id="btn_m_history">History</button>
 				<button type="button" class="btn_m" id="btn_m_featureWeights">Feature Weights</button>
-				<button type="button" class="btn_m" id="btn_m_criticality">Criticality</button>
+				<!-- <button type="button" class="btn_m" id="btn_m_criticality">Criticality</button>
 				<button type="button" class="btn_m" id="btn_m_resources">Resources</button>
-				<button type="button" class="btn_m" id="btn_m_oprhours">Operation Hours</button>
+				<button type="button" class="btn_m" id="btn_m_oprhours">Operation Hours</button> -->
 				<span id="histFeat-status">
 					<span>History & Feature: </span>
 					<span id="histFeat-switchBox">
@@ -1396,200 +1396,27 @@
 			</div>
 			<!-- E: right graphs -->
 			<!-- S: right tables -->
-			<div id="r_tables">
-				<div id="r_tablesInfo"> 					
-					<h2 class="sec_tit">Contextal Information
-						<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltiptext">Descride Contextal Information</span></span>
-					</h2>
-
-					<!-- S: criticality -->
-					<div id="r_crtclty">
-						<table id="tbl_crtclty" class="tbl tbl_r_tables">
-							<thead>
-								<tr>
-									<th class="tbl_tit" id="w_crtclty_lv">Element</th>
-									<th class="tbl_tit" id="w_crtclty_lv_h">High <br>Criticality</th>
-									<th class="tbl_tit" id="w_crtclty_lv_m">Medium <br>Criticality</th>
-									<th class="tbl_tit" id="w_crtclty_lv_l">Low <br>Criticality</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="con_tbl_row">
-									<td class="con_col"><div class="tit_ele">Cooler</div></td>
-									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col"><div class="tit_ele">Valve</div></td>
-									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-								</tr>
-								<tr class="con_tbl_row">
-									<td class="con_col"><div class="tit_ele">Pump</div></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col"><div class="tit_ele">Accumulator</div></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-									<td class="con_col"><p class="criticality_lv"><i class="fas fa-check-circle"></i></p></td>
-									<td class="con_col"><p class="criticality_lv"></p></td>
-								</tr>						
-							</tbody>
-						</table>
-						<div class="lock_data off">
-							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br>Criticality is currently not available</p>
-							<img src="../static/images/emptyGraph.png" alt="" class="empty_crtclty">
-						</div>
+			
+			<!-- SHAP Plots -->
+			<div id="shap-plot-container">
+				<h2 class="sec_tit">SHAP Explanation
+					<span class="tooltip">
+						<i class="fas fa-info-circle"></i>
+						<span class="tooltiptext">SHAP value-based explanation of model predictions</span>
+					</span>
+				</h2>
+				<div class="draw"> 
+					<!-- Empty placeholder -->
+					<div class="empty_data_shap" id="shap-empty-placeholder">
+						<p class="graph_non">Select one element</p>
+						<img src="../static/images/emptyGraph.png" alt="" class="empty_img_shap">
 					</div>
-					<!-- E: criticality -->
-
-					<!-- S: Resources -->
-					<div id="r_resources">
-						<table id="tbl_resources" class="tbl tbl_r_tables">
-							<thead>
-								<tr>
-									<th class="tbl_tit" id="resource_month">Engineers</th>
-									<th class="tbl_tit" id="resource_w1">W1</th>
-									<th class="tbl_tit" id="resource_w2">W2</th>
-									<th class="tbl_tit" id="resource_w3">W3</th>
-									<th class="tbl_tit" id="resource_w4">W4</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="con_tbl_row">
-									<td class="con_col">
-										<div class="tit_ele" id="">Jan</div>
-									</td>
-									<td class="con_col">
-										<p class="w1">5</p>
-									</td>
-									<td class="con_col">
-										<p class="w2">1</p>
-									</td>
-									<td class="con_col">
-										<p class="w3">10</p>
-									</td>
-									<td class="con_col">
-										<p class="w4">5</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col">
-										<div class="tit_ele" id="">Feb</span>
-									</td>
-									<td class="con_col">
-										<p class="w1">5</p>
-									</td>
-									<td class="con_col">
-										<p class="w2">1</p>
-									</td>
-									<td class="con_col">
-										<p class="w3">10</p>
-									</td>
-									<td class="con_col">
-										<p class="w4">5</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row">
-									<td class="con_col">
-										<div class="tit_ele" id="">Mar</span>
-									</td>
-									<td class="con_col">
-										<p class="w1">5</p>
-									</td>
-									<td class="con_col">
-										<p class="w2">1</p>
-									</td>
-									<td class="con_col">
-										<p class="w3">10</p>
-									</td>
-									<td class="con_col">
-										<p class="w4">5</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col">
-										<div class="tit_ele" id="">Apr</span>
-									</td>
-									<td class="con_col">
-										<p class="w1">5</p>
-									</td>
-									<td class="con_col">
-										<p class="w2">1</p>
-									</td>
-									<td class="con_col">
-										<p class="w3">10</p>
-									</td>
-									<td class="con_col">
-										<p class="w4">5</p>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="lock_data off">
-							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br> is currently not availabe</p>
-							<img src="../static/images/emptyGraph.png" alt="" class="empty_resources">
-						</div>
-					</div>
-					<!-- E: Resources -->
-					
-					<!-- S: Operation Hours -->
-					<div id="r_oprHrs">
-						<table id="tbl_oprHrs" class="tbl tbl_r_tables">
-							<thead>
-								<tr>
-									<th class="tbl_tit" id="w_oprHrs">Element</th>
-									<th class="tbl_tit" id="w_oprHrs_O">Operation Hours</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="con_tbl_row">
-									<td class="con_col">
-										<div class="tit_ele">Cooler</div>
-									</td>
-									<td class="con_col">
-										<p id="criticality_cool">1.5 years</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col">
-										<div class="tit_ele">Valve</div>
-									</td>
-									<td class="con_col">
-										<p id="criticality_valve">3 years</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row">
-									<td class="con_col">
-										<div class="tit_ele">Pump</div>
-									</td>
-									<td class="con_col">
-										<p id="criticality_pump">1 year</p>
-									</td>
-								</tr>
-								<tr class="con_tbl_row row_wh">
-									<td class="con_col">
-										<div class="tit_ele">Accumulator</div>
-									</td>
-									<td class="con_col">
-										<p id="criticality_acc">3 years</p>
-									</td>
-								</tr>						
-							</tbody>
-						</table>
-						<div class="lock_data off">
-							<p class="graph_non contextalInfo"><i class="fas fa-lock"></i><br>Operation hours is currently not availabe</p>
-							<img src="../static/images/emptyGraph.png" alt="" class="empty_oprHrs">
-						</div>
-					</div>
-					<!-- E: Operation Hours -->
-
+					<!-- SHAP chart -->
+					<svg id="shap-plot" class="chart off"></svg>
 				</div>
 			</div>
+			
+			
 			<!-- E: right tables -->
 		</div>
 		<!-- E: wrap-right -->
