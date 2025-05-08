@@ -122,7 +122,7 @@ canvas {
 .col-confiRate.off,
 .recomm_act.off,
 .component-desc.off {
-	display: none;
+	display: none !important;
 }
 #r_tablesInfo {
 	display: inline-block;
@@ -225,6 +225,18 @@ span.graph_tit {
   color: #fff;
   border-radius: 6px;
   font-size: 12px;
+}
+
+.d3-tip-shap {
+    z-index: 9999 !important;
+    position: absolute;
+    display: none; /* hide by default */
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    pointer-events: none;
 }
 
 /* Creates a small triangle extender for the tooltip */
@@ -435,6 +447,56 @@ td.tit_ele {
  * Graph Section Styling
  * ---------------------------------------------------
  */
+
+shap-plot-container {
+width: 100%;
+margin-top: 10px;
+}
+
+#shap-plot-container .draw {
+position: relative;
+height: 269px;
+width: 1045px;
+border: 1px dashed #ccc;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: white;
+}
+
+#shap-plot {
+	width: 100%;
+	height: 269px; /* or whatever fits inside your container */
+	overflow: visible !important;    /* allows scroll if content overflows */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+
+.empty_data_shap {
+position: relative;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%; /* Ensure it doesn't overflow vertically */
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+background: rgba(255, 255, 255, 0.9); /* optional overlay */
+pointer-events: none;
+z-index: 2;
+}
+
+.empty_img_shap {
+width: 1000px;
+height: 229px;
+opacity: 0.3;
+}
+
+
 .empty_data,
 .lock_data {
 	position: relative;
