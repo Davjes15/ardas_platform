@@ -1538,5 +1538,199 @@ d3.csv("/static/hs_database/history_acc.csv", function(error, data) {
 })();
 
 
+/* 
+	------------------------------------------------
+	Desc: Call Data - SHAP plots
+	------------------------------------------------
+*/
+
+(function _shap() {
+	function _drawShap(btn, componentName) {
+		btn.click(function () {
+			// Check if SHAP data exists
+			if (!globalShapData || !globalShapData[componentName]) {
+				console.warn(`No SHAP data available for ${componentName}`);
+				return;
+			}
+
+			// Hide the placeholder
+			$("#shap-empty-placeholder").addClass("off").css("display", "none");
+
+			// Remove previous plot content
+			// d3.select("#shap-plot").selectAll("*").remove();
+
+			// Make the SVG container visible
+			$("#shap-plot").removeClass("off").css("display", "flex"); // ensure visible and centered
+			d3.select("#shap-plot").html(""); // fully reset the container
+
+			const shapData = globalShapData[componentName];
+			const dataArray = shapData.data; // extract the actual array
+			const sensors = shapData.sensors;
+			const moments = shapData.moments;
+
+			drawShapHeatmap(dataArray, sensors, moments);
+		});
+	}
+
+	// Buttons reused from feature weight plots
+	let btnCooler = $("#btn_feat_cooler"),
+		btnValve = $("#btn_feat_valve"),
+		btnPump = $("#btn_feat_pump"),
+		btnAcc = $("#btn_feat_acc");
+
+	_drawShap(btnCooler, "cooler");
+	_drawShap(btnValve, "valve");
+	_drawShap(btnPump, "pump");
+	_drawShap(btnAcc, "acc");
+})();
 
 
+/* 
+	------------------------------------------------
+	Desc: SHAP Plots
+	------------------------------------------------
+*/
+
+function drawShapHeatmap(shapData, sensors, moments) {
+	console.log("SHAP DATA sample (first element):", shapData[0]);
+	console.log("Is array of objects?", typeof shapData[0] === "object" && shapData[0] !== null);
+	// Create or select tooltip
+	let tooltip = d3.select(".d3-tip-shap");
+	if (tooltip.empty()) {
+		tooltip = d3.select("body").append("div")
+			.attr("class", "d3-tip-shap")
+			.style("opacity", 0)
+	}
+    // Clear previous plot
+    d3.select("#shap-plot").html("");
+
+    const margin = { top: 40, right: 60, bottom: 40, left: 60 };
+    const cellSize = 40;
+    const width = cellSize * sensors.length;
+    const height = cellSize * moments.length;
+
+    const svg = d3.select("#shap-plot")
+        .append("svg")
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .style("width", "100%")
+        .style("height", "100%");
+
+	// First, remove any existing group to reset cleanly
+	svg.selectAll("g.heatmap-group").remove();
+
+	// Then create a new group for your plot
+	const g = svg.append("g")
+		.attr("class", "heatmap-group")
+		.attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Dynamic color scale based on SHAP values
+    const minShap = d3.min(shapData, d => d.shap);
+    const maxShap = d3.max(shapData, d => d.shap);
+
+    const colorScale = d3.scaleLinear()
+        .domain([minShap, 0, maxShap])
+        .range(["#2166ac", "#f7f7f7", "#b2182b"]);
+
+	g.selectAll("rect.shap-cell").remove();  // remove only shap cells, not the legend etc.
+	console.log("About to bind shapData to rects. First item:", shapData[0]);
+	
+    // Draw heatmap cells
+    g.selectAll("rect.shap-cell")
+        .data(shapData)
+        .enter()
+        .append("rect")
+		.attr("class", "shap-cell")
+        .attr("x", d => sensors.indexOf(d.sensor) * cellSize)
+        .attr("y", d => moments.indexOf(d.moment) * cellSize)
+        .attr("width", cellSize)
+        .attr("height", cellSize)
+        .style("fill", d => colorScale(d.shap))
+        .style("stroke", "#ccc")
+		.on("mouseover", function(d) {
+			const event = d3.event;  // Get the current mouse event
+			tooltip
+    			.style("left", (event.pageX + 10) + "px")
+    			.style("top", (event.pageY - 40) + "px")  // appear slightly above the cursor
+				.style("display", "block")
+				.style("opacity", 1)
+				.style("padding", "6px")
+				.style("font-size", "14px")
+				.html(
+					`<strong>Sensor:</strong> ${d.sensor}<br/>
+					<strong>Moment:</strong> ${d.moment}<br/>
+					<strong>Value:</strong> ${d.value}<br/>
+					<strong>SHAP:</strong> ${typeof d.shap === "number" ? d.shap.toFixed(2) : "N/A"}`
+				);
+			d3.select(this)
+				.style("stroke", "black")
+				.style("stroke-width", 2);
+		})
+		.on("mouseout", function() {
+			d3.select(this).style("stroke", "#ccc").style("stroke-width", 1);
+			tooltip.style("opacity", 0).style("display", "none");
+		});
+       
+    // Y-axis labels (moments)
+    g.selectAll(".moment-label")
+        .data(moments)
+        .enter()
+        .append("text")
+        .attr("x", -10)
+        .attr("y", (d, i) => i * cellSize + cellSize / 2)
+        .text(d => d)
+        .attr("text-anchor", "end")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "12px");
+
+    // X-axis labels (sensors) — now moved to bottom
+    g.selectAll(".sensor-label")
+        .data(sensors)
+        .enter()
+        .append("text")
+        .attr("x", (d, i) => i * cellSize + cellSize / 2)
+        .attr("y", height + 20)  // positioned below the heatmap
+        .text(d => d)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px");
+
+    // Add SHAP value legend (right side)
+    const legendHeight = 160;
+    const legendWidth = 15;
+
+    const defs = svg.append("defs");
+    const linearGradient = defs.append("linearGradient")
+        .attr("id", "shapGradient")
+        .attr("x1", "0%")
+        .attr("y1", "100%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+
+    linearGradient.append("stop").attr("offset", "0%").attr("stop-color", "#2166ac");
+    linearGradient.append("stop").attr("offset", "50%").attr("stop-color", "#f7f7f7");
+    linearGradient.append("stop").attr("offset", "100%").attr("stop-color", "#b2182b");
+
+    svg.append("g")
+        .attr("transform", `translate(${width + margin.left + 20}, ${margin.top})`)
+        .append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#shapGradient)");
+
+    const legendScale = d3.scaleLinear()
+        .domain([minShap, maxShap])
+        .range([legendHeight, 0]);
+
+    const legendAxis = d3.axisRight(legendScale).ticks(5);
+
+    svg.append("g")
+        .attr("transform", `translate(${width + margin.left + 32}, ${margin.top})`)
+        .call(legendAxis);
+
+    svg.append("text")
+        .attr("x", width + margin.left + 20)
+        .attr("y", margin.top - 10)
+        .attr("text-anchor", "start")
+        .style("font-size", "12px")
+        .text("SHAP Value");
+}
