@@ -9,6 +9,10 @@
 	------------------------------------------------
 */
 
+// Set the initial shap min and max values
+let globalShapMin = null;
+let globalShapMax = null;
+
 // Set the dimensions and margins of the graph
 const margin = {top: 6, right: 17, bottom: 38, left: 58},
 	width = 508 - margin.left - margin.right,
@@ -230,6 +234,153 @@ function drawSVG(newData, xLabel, yLabel) {
 		.ease(d3.easeLinear);
 	d3.selectAll(".curtain").transition(t)
 		.attr('width', 0);
+}
+
+
+/* 
+	------------------------------------------------
+	Name : drawShapOverlay
+	Desc : Draw shap attribute overlay on the left-side box
+
+	Drawing only a line with shap attribute overlay
+	------------------------------------------------
+*/
+
+function renderShapOverlay(sensorID, shapData) {
+	console.log("Rendering SHAP overlay for sensor:", sensorID, shapData);
+
+	// Step 1: Clear chart area
+	detectDraw();
+
+	// Step 2: Map sensorID to its CSV path
+	const sensorDataMap = {
+		"PS1": dataPS1, "PS2": dataPS2, "PS3": dataPS3, "PS4": dataPS4, "PS5": dataPS5, "PS6": dataPS6,
+		"EPS1": dataEPS1, "TS1": dataTS1, "TS2": dataTS2, "TS3": dataTS3, "TS4": dataTS4,
+		"FS1": dataFS1, "FS2": dataFS2, "CE": dataCE, "CP": dataCP, "SE": dataSE, "VS1": dataVS1,
+	};
+
+	const filePath = sensorDataMap[sensorID];
+	if (!filePath) {
+		console.error(`No raw data found for sensor ${sensorID}`);
+		return;
+	}
+
+	// Step 3: Load raw sensor data (same logic as drawSVG)
+	d3.csv(filePath, function (error, data) {
+		if (error) throw error;
+
+		const rawData = [];
+		for (let key in data[initialRow]) {
+			if (key !== "name") {
+				rawData.push({
+					name: +key,
+					value: +data[initialRow][key]
+				});
+			}
+		}
+
+		// Step 4: Build SHAP overlay segments using actual time steps
+		const timeSteps = rawData.map(d => d.name);
+		const segmentCount = shapData.length;
+		const segmentSize = Math.floor(timeSteps.length / segmentCount);
+
+		const overlayData = shapData.map((d, i) => {
+			const startIdx = i * segmentSize;
+			const endIdx = (i + 1) * segmentSize - 1;
+
+			return {
+				start: timeSteps[startIdx] ?? timeSteps[0],
+				end: timeSteps[endIdx] ?? timeSteps[timeSteps.length - 1],
+				label: d.moment,
+				value: +d.value,
+				shap: +d.shap
+			};
+		});
+
+		// Step 5: Create color scale using global SHAP min/max from heatmap
+		const shapColorScale = d3.scaleLinear()
+			.domain([globalShapMin, 0, globalShapMax])
+			.range(["#2166ac", "#f7f7f7", "#b2182b"]);
+
+		// Step 6: Axis scaling
+		x.domain(d3.extent(rawData, d => d.name)).nice();
+		y.domain(d3.extent(rawData, d => d.value)).nice();
+
+		// Step 7: Gridlines
+		svgSensor_L.append("g")
+			.attr("class", "grid")
+			.attr("transform", `translate(0,${height})`)
+			.call(make_x_gridlines().tickSize(-height).tickFormat(""));
+		svgSensor_L.append("g")
+			.attr("class", "grid")
+			.call(make_y_gridlines().tickSize(-width).tickFormat(""));
+
+		// Step 8: Line chart
+		svgSensor_L.append("path")
+			.data([rawData])
+			.attr("class", "line")
+			.attr("fill", "none")
+			.attr("stroke", "#333")
+			.attr("stroke-width", 1.5)
+			.attr("d", valueline);
+
+		// Step 8: Draw SHAP overlay rectangles
+		overlayData.forEach(segment => {
+			svgSensor_L.append("rect")
+				.attr("x", x(segment.start))
+				.attr("width", x(segment.end) - x(segment.start))
+				.attr("y", 0)
+				.attr("height", height)
+				.attr("fill", shapColorScale(segment.shap))
+				.attr("opacity", 0.3);
+
+				svgSensor_L.append("text")
+				.attr("x", x((segment.start + segment.end) / 2))
+				.attr("y", 12)
+				.attr("text-anchor", "middle")
+				.style("font-size", "10px")
+				.selectAll("tspan")
+				.data([
+					`${segment.label}: ${segment.value.toFixed(2)}`,
+					`SHAP: ${segment.shap.toFixed(2)}`
+				])
+				.enter()
+				.append("tspan")
+				.attr("x", x((segment.start + segment.end) / 2)) // reset x for each line
+				.attr("dy", (d, i) => i === 0 ? 0 : "1.1em")      // offset second line downward
+				.text(d => d);
+		});
+
+		// Step 9: Axes
+		svgSensor_L.append("g")
+			.attr("transform", `translate(0,${height})`)
+			.style("font-family", "Raleway")
+			.style("font-size", "11px")
+			.call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Q")));
+		svgSensor_L.append("g")
+			.style("font-family", "Raleway")
+			.style("font-size", "11px")
+			.call(d3.axisLeft(y));
+
+		// Step 10: Axis labels
+		svgSensor_L.append("text")
+			.attr("transform", `translate(${width / 2}, ${height + margin.top + 28})`)
+			.style("text-anchor", "middle")
+			.style("font-size", "13px")
+			.text("Time Step");
+
+		svgSensor_L.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", "-53px")
+			.attr("x", -height / 2)
+			.attr("dy", "1em")
+			.style("text-anchor", "middle")
+			.style("font-size", "13px")
+			.text("Sensor Value");
+
+		// Step 11: Update title
+		titSensorL.text(`SHAP Attribution – ${sensorID}`);
+	});
 }
 
 
@@ -1385,6 +1536,7 @@ d3.csv("/static/hs_database/history_acc.csv", function(error, data) {
 });
 
 /* 
+	------------------------------------------------
 	Name : loadHistoryGraphs
 	Desc : Load history graph
 	------------------------------------------------
@@ -1561,7 +1713,7 @@ d3.csv("/static/hs_database/history_acc.csv", function(error, data) {
 
 			// Make the SVG container visible
 			$("#shap-plot").removeClass("off").css("display", "flex"); // ensure visible and centered
-			d3.select("#shap-plot").html(""); // fully reset the container
+			// d3.select("#shap-plot").html(""); // fully reset the container
 
 			const shapData = globalShapData[componentName];
 			const dataArray = shapData.data; // extract the actual array
@@ -1590,6 +1742,28 @@ d3.csv("/static/hs_database/history_acc.csv", function(error, data) {
 	Desc: SHAP Plots
 	------------------------------------------------
 */
+function detectDrawShap(shapData) {
+	const drawBoxShap = d3.select("#shap-plot");
+	const emptyBoxShap = d3.select("#shap-empty-placeholder");
+
+	// Handle missing or empty data
+	if (!shapData || shapData.length === 0) {
+		emptyBoxShap.style("display", "block");
+		drawBoxShap.classed("off", true);
+		drawBoxShap.selectAll("*").remove();
+		return false;
+	}
+
+	// Otherwise show the plot container
+	emptyBoxShap.style("display", "none");
+	drawBoxShap.classed("off", false);
+	drawBoxShap.selectAll("*").remove();
+	return true;
+}
+
+
+
+
 
 function drawShapHeatmap(shapData, sensors, moments) {
 	console.log("SHAP DATA sample (first element):", shapData[0]);
@@ -1602,7 +1776,7 @@ function drawShapHeatmap(shapData, sensors, moments) {
 			.style("opacity", 0)
 	}
     // Clear previous plot
-    d3.select("#shap-plot").html("");
+    if (!detectDrawShap(shapData)) return;
 
     const margin = { top: 40, right: 60, bottom: 40, left: 60 };
     const cellSize = 40;
@@ -1627,6 +1801,8 @@ function drawShapHeatmap(shapData, sensors, moments) {
     // Dynamic color scale based on SHAP values
     const minShap = d3.min(shapData, d => d.shap);
     const maxShap = d3.max(shapData, d => d.shap);
+	globalShapMin = minShap;
+	globalShapMax = maxShap;
 
     const colorScale = d3.scaleLinear()
         .domain([minShap, 0, maxShap])
@@ -1669,6 +1845,12 @@ function drawShapHeatmap(shapData, sensors, moments) {
 		.on("mouseout", function() {
 			d3.select(this).style("stroke", "#ccc").style("stroke-width", 1);
 			tooltip.style("opacity", 0).style("display", "none");
+		})
+		.on("click", function(d) {
+			// renderShapOverlay(d.sensor);  // <-- you'll implement this below
+			const sensorID = d.sensor;
+			const shapDataForSensor = shapData.filter(row => row.sensor === sensorID);
+			renderShapOverlay(sensorID, shapDataForSensor);
 		});
        
     // Y-axis labels (moments)
@@ -1734,3 +1916,4 @@ function drawShapHeatmap(shapData, sensors, moments) {
         .style("font-size", "12px")
         .text("SHAP Value");
 }
+
